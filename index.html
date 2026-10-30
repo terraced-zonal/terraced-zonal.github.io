@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Linear-Time Construction on S² Achieving a Sublinear Energy Gap on Smale's Seventh Problem</title>
+<style>
+  :root {
+    --ink: #1f2328; --muted: #5b6470; --line: #d9dde3; --bg: #fafaf7;
+    --card: #ffffff; --tz: #0a6b1f; --seam: #1a73e8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, "Times New Roman", serif; color: var(--ink); background: var(--bg); }
+  header { padding: 22px 28px 6px; }
+  h1 { font-size: 22px; margin: 0 0 6px; font-weight: normal; }
+  .authors { font-size: 15px; margin: 2px 0 2px; }
+  .affils { font-size: 12px; color: var(--muted); margin: 0 0 10px; font-family: system-ui, sans-serif; }
+  .authors sup, .affils sup { font-size: 0.7em; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; max-width: 980px; line-height: 1.45; }
+  .controls { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; padding: 14px 28px; font-family: system-ui, sans-serif; font-size: 13px; }
+  .control { display: flex; align-items: center; gap: 10px; }
+  .seg { position: relative; display: inline-flex; background: #e6e8ec; border-radius: 16px; padding: 3px; }
+  .seg button { position: relative; z-index: 1; border: none; background: transparent; padding: 5px 14px; border-radius: 13px; cursor: pointer; color: var(--muted); }
+  .seg button.active { color: var(--ink); text-shadow: 0 0 .6px currentColor; }
+  .seg .knob { position: absolute; top: 3px; bottom: 3px; border-radius: 13px; background: white; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .2s, width .2s; }
+  label.disabled { color: #b0b5bd; }
+  select, button { font: inherit; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: white; }
+  input[type=range] { width: 300px; }
+  .ticks { display: flex; justify-content: space-between; width: 300px; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .row { display: grid; grid-template-columns: repeat(5, minmax(180px, 1fr)); gap: 14px; padding: 6px 28px 10px; align-items: start; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 10px 8px; position: relative; }
+  .card.tz { border: 2.5px solid var(--tz); box-shadow: 0 0 0 4px rgba(10,107,31,.08); }
+  .badge { position: absolute; top: -11px; right: 10px; background: var(--tz); color: white; font-family: system-ui, sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+  .title { font-size: 16px; text-align: center; }
+  .family { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 4px; font-family: system-ui, sans-serif; }
+  canvas { display: block; width: 100%; }
+  canvas.zoom { border: 1.5px solid var(--seam); border-radius: 3px; margin-top: 6px; }
+  .stats { font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); text-align: center; margin-top: 6px; min-height: 2.6em; }
+  .legend { display: flex; justify-content: center; align-items: center; gap: 16px; padding: 4px 28px 26px; font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); }
+  .colorbar { width: 320px; }
+  .colorbar .bar { height: 12px; border: 1px solid #555; }
+  .colorbar .lbl { display: flex; justify-content: space-between; margin-top: 2px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; }
+  .chip span { width: 14px; height: 14px; border: 1px solid #666; display: inline-block; }
+  footer { padding: 0 28px 24px; color: var(--muted); font-size: 12px; font-family: system-ui, sans-serif; max-width: 1100px; line-height: 1.5; }
+  @media (max-width: 1100px) { .row { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .row { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>A Linear-Time Construction on &#x1D54A;<sup>2</sup> Achieving a Sublinear Energy Gap on Smale&rsquo;s Seventh Problem</h1>
+  <p>Four published constructions and <b>TerracedZonal</b> (right), with every point's Voronoi cell coloured by how far it is from a regular hexagon. The sphere turns slowly; the framed panel below each sphere is an equal-area zoom of the boxed region at the centre of view, scaled to unit area per point.</p>
+</header>
+
+<div class="controls">
+  <div class="control">
+    <div class="seg" id="view" role="radiogroup" aria-label="Colouring">
+      <div class="knob"></div>
+      <button data-view="perim" role="radio">Perimeter excess</button>
+      <button data-view="aniso" role="radio">Cell anisotropy</button>
+      <button data-view="defect" role="radio">Pentagons / heptagons</button>
+    </div>
+    <label id="outline-wrap" style="margin-left:6px"><input type="checkbox" id="outline" checked> outline pentagons / heptagons</label>
+  </div>
+  <div class="control">
+    <label for="nslider">N &approx;</label>
+    <div>
+      <input id="nslider" type="range" min="0" max="7" step="1" value="5">
+      <div class="ticks" id="nticks"></div>
+    </div>
+  </div>
+  <div class="control"><button id="spin">Pause</button></div>
+</div>
+
+<div class="row" id="row"></div>
+
+<div class="legend" id="legend"></div>
+
+<footer>
+  <b>Why the perimeter.</b> The Voronoi cells of the triangular lattice are regular hexagons, and the regular hexagonal tiling has the least perimeter of any partition of the plane into equal areas (Hales's honeycomb theorem, 2001). The triangular lattice also minimizes the lattice energies behind the conjectured optimal logarithmic energy (Rankin 1953; Cassels 1959; Montgomery 1988; Sandier&ndash;Serfaty 2012; B&eacute;termin&ndash;Sandier 2018). We therefore colour each cell by its <b>perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of a regular spherical hexagon of the same area: it is 0 for a perfect cell and at least 2.4% for any pentagon. No theorem bounds the logarithmic energy by it; it is a geometric diagnostic, whose mean tracks the energy gap closely across these constructions. Cards report the <b>mean</b> (the energy is a sum over points) and the share of cells more than 1% above P<sub>hex</sub> (how concentrated the distortion is).
+  <b>Anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell's second-moment tensor measures elongation: it picks up sheared or stretched hexagons, but a nearly regular pentagon or heptagon scores low.
+  <b>Pentagons / heptagons:</b> cells with 5 neighbours are red, 7 blue, 4 or 8+ darker; the outline option marks them over either heat map. Each construction uses its nearest admissible N (shown on each card).
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

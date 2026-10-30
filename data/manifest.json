@@ -1,0 +1,209 @@
+{
+ "targets": [
+  250,
+  500,
+  1000,
+  2000,
+  4000,
+  10000,
+  30000,
+  100000
+ ],
+ "constructions": [
+  {
+   "key": "fib",
+   "name": "Fibonacci lattice",
+   "family": "Spiral (Swinbank\u2013Purser, odd N)",
+   "files": {
+    "250": {
+     "file": "fib_250.json",
+     "n": 249
+    },
+    "500": {
+     "file": "fib_500.json",
+     "n": 499
+    },
+    "1000": {
+     "file": "fib_1000.json",
+     "n": 999
+    },
+    "2000": {
+     "file": "fib_2000.json",
+     "n": 1999
+    },
+    "4000": {
+     "file": "fib_4000.json",
+     "n": 3999
+    },
+    "10000": {
+     "file": "fib_10000.json",
+     "n": 9999
+    },
+    "30000": {
+     "file": "fib_30000.json",
+     "n": 29999
+    },
+    "100000": {
+     "file": "fib_100000.json",
+     "n": 99999
+    }
+   }
+  },
+  {
+   "key": "zonaleq",
+   "name": "ZonalEQ",
+   "family": "Zonal rings",
+   "files": {
+    "250": {
+     "file": "zonaleq_250.json",
+     "n": 250
+    },
+    "500": {
+     "file": "zonaleq_500.json",
+     "n": 500
+    },
+    "1000": {
+     "file": "zonaleq_1000.json",
+     "n": 1000
+    },
+    "2000": {
+     "file": "zonaleq_2000.json",
+     "n": 2000
+    },
+    "4000": {
+     "file": "zonaleq_4000.json",
+     "n": 4000
+    },
+    "10000": {
+     "file": "zonaleq_10000.json",
+     "n": 10000
+    },
+    "30000": {
+     "file": "zonaleq_30000.json",
+     "n": 30000
+    },
+    "100000": {
+     "file": "zonaleq_100000.json",
+     "n": 100000
+    }
+   }
+  },
+  {
+   "key": "eqareaico",
+   "name": "EqAreaIco",
+   "family": "Polyhedral",
+   "files": {
+    "250": {
+     "file": "eqareaico_250.json",
+     "n": 252
+    },
+    "500": {
+     "file": "eqareaico_500.json",
+     "n": 492
+    },
+    "1000": {
+     "file": "eqareaico_1000.json",
+     "n": 1002
+    },
+    "2000": {
+     "file": "eqareaico_2000.json",
+     "n": 1992
+    },
+    "4000": {
+     "file": "eqareaico_4000.json",
+     "n": 4002
+    },
+    "10000": {
+     "file": "eqareaico_10000.json",
+     "n": 9992
+    },
+    "30000": {
+     "file": "eqareaico_30000.json",
+     "n": 30012
+    },
+    "100000": {
+     "file": "eqareaico_100000.json",
+     "n": 100002
+    }
+   }
+  },
+  {
+   "key": "hammersley",
+   "name": "Hammersley",
+   "family": "Quasi-Monte Carlo",
+   "files": {
+    "250": {
+     "file": "hammersley_250.json",
+     "n": 250
+    },
+    "500": {
+     "file": "hammersley_500.json",
+     "n": 500
+    },
+    "1000": {
+     "file": "hammersley_1000.json",
+     "n": 1000
+    },
+    "2000": {
+     "file": "hammersley_2000.json",
+     "n": 2000
+    },
+    "4000": {
+     "file": "hammersley_4000.json",
+     "n": 4000
+    },
+    "10000": {
+     "file": "hammersley_10000.json",
+     "n": 10000
+    },
+    "30000": {
+     "file": "hammersley_30000.json",
+     "n": 30000
+    },
+    "100000": {
+     "file": "hammersley_100000.json",
+     "n": 100000
+    }
+   }
+  },
+  {
+   "key": "tz",
+   "name": "TerracedZonal",
+   "family": "This paper",
+   "files": {
+    "250": {
+     "file": "tz_250.json",
+     "n": 250
+    },
+    "500": {
+     "file": "tz_500.json",
+     "n": 500
+    },
+    "1000": {
+     "file": "tz_1000.json",
+     "n": 1000
+    },
+    "2000": {
+     "file": "tz_2000.json",
+     "n": 2000
+    },
+    "4000": {
+     "file": "tz_4000.json",
+     "n": 4000
+    },
+    "10000": {
+     "file": "tz_10000.json",
+     "n": 10000
+    },
+    "30000": {
+     "file": "tz_30000.json",
+     "n": 30000
+    },
+    "100000": {
+     "file": "tz_100000.json",
+     "n": 100000
+    }
+   }
+  }
+ ]
+}
