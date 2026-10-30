@@ -3,20 +3,42 @@
 "use strict";
 
 const ELEV = 22 * Math.PI / 180;           // camera elevation above the equator
-const SPIN_PERIOD = 60;                    // seconds per revolution
+const SPEEDS = { pause: 0, slow: 60, fast: 5 }; // seconds per revolution (0: paused)
 const HALF_X = 3.2, HALF_Y = 2.4;          // zoom window, in units of unit area per point
 const VMAX = { aniso: 0.20, perim: 0.07 }; // colour-bar maxima
-const YLORBR = ["#ffffe5", "#fff7bc", "#fee391", "#fec44f", "#fe9929",
-                "#ec7014", "#cc4c02", "#993404", "#662506"];
-const DEFECT = { 3: "#67000d", 4: "#a50f15", 5: "#e3412f", 6: "#f3efe6",
-                 7: "#1a73e8", 8: "#08306b", 9: "#041f45" };
+// Candidate colour schemes (choose with ?palette=A..E): heat-map stops, the
+// pentagon / heptagon colours, and the cell-boundary colour.
+const PALETTES = {
+  A: { name: "white \u2192 yellow \u2192 orange; teal / purple",
+       stops: ["#ffffff", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014"],
+       pent: "#00a3a3", hept: "#7b3294", edge: "rgba(120,120,120,0.55)", zedge: "#9a9a9a" },
+  B: { name: "white \u2192 gray; orange / blue (Okabe\u2013Ito)",
+       stops: ["#ffffff", "#e6e6e6", "#c8c8c8", "#a8a8a8", "#858585", "#636363"],
+       pent: "#e69f00", hept: "#0072b2", edge: "rgba(70,80,95,0.55)", zedge: "#56606e" },
+  C: { name: "cividis (light end); magenta / green",
+       stops: ["#fdfdf6", "#fde9a0", "#e9d26a", "#c4b765", "#a19c70", "#7f8078"],
+       pent: "#cc3399", hept: "#1b9e77", edge: "rgba(110,110,110,0.55)", zedge: "#8c8c8c" },
+  D: { name: "white \u2192 blue; orange / purple",
+       stops: ["#ffffff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd"],
+       pent: "#e66100", hept: "#5d3a9b", edge: "rgba(110,110,110,0.55)", zedge: "#8c8c8c" },
+  E: { name: "current (yellow \u2192 brown), gray boundaries; red / blue",
+       stops: ["#ffffe5", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#993404", "#662506"],
+       pent: "#e3412f", hept: "#1a73e8", edge: "rgba(120,120,120,0.55)", zedge: "#9a9a9a" },
+};
+const PAL = PALETTES[new URLSearchParams(location.search).get("palette")] || PALETTES.E;
+const YLORBR = PAL.stops;
+const shade = (h, f) => "#" + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * f)
+  .toString(16).padStart(2, "0")).join("");
+const DEFECT = { 3: shade(PAL.pent, 0.45), 4: shade(PAL.pent, 0.7), 5: PAL.pent, 6: "#f3efe6",
+                 7: PAL.hept, 8: shade(PAL.hept, 0.7), 9: shade(PAL.hept, 0.45) };
+const BOX_COLOR = "rgba(90,90,90,0.45)";   // zoom box on the sphere: gray, nearly transparent
 
 // Camera basis: view direction d, screen right r, screen up u (right-handed).
 const D = [Math.cos(ELEV), 0, Math.sin(ELEV)];
 const R = [0, 1, 0];
 const U = [-Math.sin(ELEV), 0, Math.cos(ELEV)];
 
-const state = { mode: "heat", metric: "perim", outline: true, tIdx: 5, playing: true, angle: 0,
+const state = { mode: "heat", metric: "perim", outline: true, tIdx: 5, speed: "slow", angle: 0, zoomScale: 1,
                 manifest: null, cache: {}, cards: [] };
 
 const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
@@ -199,7 +221,7 @@ function drawSphere(card, angle) {
   const n = rec.n;
   const lw = Math.max(0.15, 0.5 * Math.sqrt(1000 / n)) * (window.devicePixelRatio || 1);
   ctx.lineWidth = lw;
-  ctx.strokeStyle = "rgba(60,48,36,0.55)";
+  ctx.strokeStyle = PAL.edge;
   const outlined = [];
   for (let k = 0; k < n; k++) {
     const x = ca * P[3 * k] - sa * P[3 * k + 1], y = sa * P[3 * k] + ca * P[3 * k + 1], z = P[3 * k + 2];
@@ -225,9 +247,10 @@ function drawSphereOverlay(ctx, n, rad, cx, cy) {
   ctx.strokeStyle = "#222";
   ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 2 * Math.PI); ctx.stroke();
   const scale = Math.sqrt(n / (4 * Math.PI));
-  const bx = rad * Math.sin(HALF_X / scale), by = rad * Math.sin(HALF_Y / scale);
-  ctx.strokeStyle = "#1a73e8";
-  ctx.lineWidth = 1.6 * (window.devicePixelRatio || 1);
+  const z = state.zoomScale;
+  const bx = rad * Math.sin(z * HALF_X / scale), by = rad * Math.sin(z * HALF_Y / scale);
+  ctx.strokeStyle = BOX_COLOR;
+  ctx.lineWidth = 1.2 * (window.devicePixelRatio || 1);
   ctx.strokeRect(cx - bx, cy - by, 2 * bx, 2 * by);
 }
 
@@ -243,8 +266,8 @@ function drawZoom(card, angle) {
   e = [e[0] / en, e[1] / en, 0];
   const nn = [c[1] * e[2] - c[2] * e[1], c[2] * e[0] - c[0] * e[2], c[0] * e[1] - c[1] * e[0]];
   const n = rec.n, scale = Math.sqrt(n / (4 * Math.PI));
-  const px = w / (2 * HALF_X);
-  const cosr = Math.cos(1.8 * Math.hypot(HALF_X, HALF_Y) / scale);
+  const px = w / (2 * HALF_X * state.zoomScale);
+  const cosr = Math.cos(1.8 * state.zoomScale * Math.hypot(HALF_X, HALF_Y) / scale);
   const V = rec.large ? rec.band_verts : rec.verts, P = rec.pts;
   const proj = i => {
     const x = V[3 * i], y = V[3 * i + 1], z = V[3 * i + 2];
@@ -253,7 +276,7 @@ function drawZoom(card, angle) {
             h / 2 - px * scale * k * (x * nn[0] + y * nn[1] + z * nn[2])];
   };
   ctx.lineWidth = 0.9 * (window.devicePixelRatio || 1);
-  ctx.strokeStyle = "#3a3027";
+  ctx.strokeStyle = PAL.zedge;
   const dots = [], outlined = [];
   const cellList = rec.large ? rec.band_cells : null;
   const nIter = rec.large ? cellList.length : n;
@@ -279,7 +302,7 @@ function drawZoom(card, angle) {
   }
   strokeDefects(ctx, rec, outlined, proj, 2.6 * (window.devicePixelRatio || 1), rec.large);
   ctx.fillStyle = "#111";
-  const r = 1.8 * (window.devicePixelRatio || 1);
+  const r = Math.max(0.8, 1.8 / Math.sqrt(state.zoomScale)) * (window.devicePixelRatio || 1);
   dots.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); });
 }
 
@@ -313,36 +336,36 @@ function drawAll() {
 // -------------------------------------------------------------- legend ---
 function updateLegend() {
   const el = document.getElementById("legend");
+  const chips = (fill) => [[5, "5 neighbours (pentagon)"], [7, "7 neighbours (heptagon)"], [4, "4"], [8, "8+"]]
+    .map(([d, t]) => `<span class="chip"><span style="${fill ? `background:${DEFECT[d]}` : `border:2.5px solid ${DEFECT[d]};background:transparent`}"></span>${t}</span>`).join("");
   if (state.mode === "defect") {
-    el.innerHTML = [[5, "5 neighbours"], [6, "6 (hexagon)"], [7, "7 neighbours"], [4, "4"], [8, "8+"]]
-      .map(([d, t]) => `<span class="chip"><span style="background:${DEFECT[d]}"></span>${t}</span>`).join("");
+    el.innerHTML = `<div class="chips">${chips(true)}<span class="chip"><span style="background:${DEFECT[6]}"></span>6 (hexagon)</span></div>`;
   } else {
     const vmax = VMAX[state.metric] * 100;
     const stops = YLORBR.map((c, i) => `${c} ${(100 * i / (YLORBR.length - 1)).toFixed(1)}%`).join(",");
     const ticks = [0, 0.25, 0.5, 0.75, 1].map(f => (f === 1 ? "\u2265" : "") + (f * vmax).toFixed(f === 0 ? 0 : 1) + "%");
     el.innerHTML = `<div class="colorbar"><div class="bar" style="background:linear-gradient(to right,${stops})"></div>` +
       `<div class="lbl">${ticks.map(t => `<span>${t}</span>`).join("")}</div>` +
-      `<div style="text-align:center;margin-top:2px">${state.metric === "aniso" ? "cell anisotropy (0 for a regular hexagon)" : "perimeter excess P/P<sub>hex</sub> \u2212 1"}</div></div>`;
+      `<div style="text-align:center;margin-top:2px">${state.metric === "aniso" ? "cell anisotropy (0 for a regular hexagon)" : "perimeter excess P/P<sub>hex</sub> \u2212 1"}</div></div>` +
+      (state.outline ? `<div class="chips">Outlined: ${chips(false)}</div>` : "");
   }
 }
 
 // ------------------------------------------------------------ controls ---
 async function setN(tIdx) {
   state.tIdx = tIdx;
+  if (state.manifest.targets[tIdx] > 10000) state.zoomScale = Math.min(state.zoomScale, 1.6);
+  updateZoomLabel();
   const recs = await loadSet(tIdx);
   state.cards.forEach((card, i) => { card.rec = recs[i]; });
   updateStats();
   drawAll();
 }
 
-// One three-way control: perim | aniso (heat maps) or defect.
-function setView(view) {
-  state.mode = view === "defect" ? "defect" : "heat";
-  if (view !== "defect") state.metric = view;
-  const seg = document.getElementById("view");
+function setSeg(seg, attr, value) {
   let active = null;
   seg.querySelectorAll("button").forEach(b => {
-    const on = b.dataset.view === view;
+    const on = b.dataset[attr] === value;
     b.classList.toggle("active", on);
     b.setAttribute("aria-checked", String(on));
     if (on) active = b;
@@ -350,6 +373,25 @@ function setView(view) {
   const knob = seg.querySelector(".knob");
   knob.style.left = active.offsetLeft + "px";
   knob.style.width = active.offsetWidth + "px";
+}
+
+function setSpeed(speed) {
+  if (!(speed in SPEEDS)) speed = "slow";
+  state.speed = speed;
+  setSeg(document.getElementById("speed"), "speed", speed);
+}
+
+function updateZoomLabel() {
+  const cells = Math.round(4 * HALF_X * HALF_Y * state.zoomScale ** 2);
+  document.getElementById("zoominfo").textContent =
+    `Inset: about ${cells} cells around the centre of view, so it zooms in as N grows. Scroll over a sphere to resize it.`;
+}
+
+// One three-way control: perim | aniso (heat maps) or defect.
+function setView(view) {
+  state.mode = view === "defect" ? "defect" : "heat";
+  if (view !== "defect") state.metric = view;
+  setSeg(document.getElementById("view"), "view", view);
   document.getElementById("outline").disabled = view === "defect";
   document.getElementById("outline-wrap").classList.toggle("disabled", view === "defect");
   updateLegend();
@@ -369,25 +411,38 @@ async function main() {
   document.querySelectorAll("#view button").forEach(b =>
     b.addEventListener("click", () => setView(b.dataset.view)));
   document.getElementById("outline").addEventListener("change", ev => {
-    state.outline = ev.target.checked; drawAll();
+    state.outline = ev.target.checked; updateLegend(); drawAll();
   });
-  const spin = document.getElementById("spin");
-  spin.addEventListener("click", () => { state.playing = !state.playing; spin.textContent = state.playing ? "Pause" : "Spin"; });
-  window.addEventListener("resize", () => setView(state.mode === "defect" ? "defect" : state.metric));
+  document.querySelectorAll("#speed button").forEach(b =>
+    b.addEventListener("click", () => setSpeed(b.dataset.speed)));
+  // Scroll over a sphere or its inset to change the size of the zoom window.
+  const onWheel = ev => {
+    ev.preventDefault();
+    const maxZ = state.manifest.targets[state.tIdx] > 10000 ? 1.6 : 3;  // band data limits large N
+    state.zoomScale = Math.min(maxZ, Math.max(0.4, state.zoomScale * Math.exp(ev.deltaY * 0.0015)));
+    updateZoomLabel(); drawAll();
+  };
+  state.cards.forEach(c => { c.sphere.addEventListener("wheel", onWheel, { passive: false });
+                             c.zoom.addEventListener("wheel", onWheel, { passive: false }); });
+  window.addEventListener("resize", () => { setView(state.mode === "defect" ? "defect" : state.metric); setSpeed(state.speed); });
   // Optional URL parameters, e.g. ?view=defect&n=3 (legacy: mode=defect, metric=aniso)
   const qs = new URLSearchParams(location.search);
   let view = qs.get("view") || (qs.get("mode") === "defect" ? "defect" : qs.get("metric")) || "perim";
   if (!["perim", "aniso", "defect"].includes(view)) view = "perim";
   if (qs.get("outline") === "0") { state.outline = false; document.getElementById("outline").checked = false; }
   if (qs.has("n")) slider.value = qs.get("n");
+  if (qs.has("speed")) state.speed = qs.get("speed");
   setView(view);
+  setSpeed(state.speed);
+  updateZoomLabel();
   await setN(Number(slider.value));
   let last = performance.now();
   const tick = now => {
     const dt = (now - last) / 1000;
     last = now;
-    if (state.playing) {
-      state.angle = (state.angle + 2 * Math.PI * dt / SPIN_PERIOD) % (2 * Math.PI);
+    const period = SPEEDS[state.speed];
+    if (period) {
+      state.angle = (state.angle + 2 * Math.PI * dt / period) % (2 * Math.PI);
       drawAll();
     }
     requestAnimationFrame(tick);

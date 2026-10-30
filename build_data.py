@@ -32,7 +32,7 @@ from smales7.constructions import (
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "data")
 TARGETS = [250, 500, 1000, 2000, 4000, 10000, 30000, 100000]
-FULL_MAX = 4000  # above this, write binary per-point data plus only the cells the zoom can show
+FULL_MAX = 10000  # targets above this: binary per-point data plus only the cells the zoom can show
 ELEV = math.radians(22.0)  # must match ELEV in app.js: the zoom centre stays at this latitude
 ZOOM_R = 1.8 * math.hypot(3.2, 2.4)  # zoom cell-selection radius (app.js), in units of unit area per point
 CONSTRUCTIONS = [  # (key, display name, family, module)
@@ -108,7 +108,7 @@ def main():
               "n_other": int(np.sum((deg != 5) & (deg != 6) & (deg != 7))),
       }
       fname = f"{key}_{target}.json"
-      if n <= FULL_MAX:
+      if target <= FULL_MAX:  # by target, so that every construction switches at the same slider position
         rec = {
             "key": key, "name": name, "family": family, "n": n, "large": False,
             "pts": np.round(pts, 5).ravel().tolist(),
