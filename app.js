@@ -1,13 +1,13 @@
-// TerracedZonal web demo: spinning spheres with Voronoi cells coloured by
-// hexagonal distortion (heat map) or by neighbour count (pentagons/heptagons).
+// TerracedZonal web demo: spinning spheres with Voronoi cells colored by
+// hexagonal distortion (heat map) or by neighbor count (pentagons/heptagons).
 "use strict";
 
 const ELEV = 22 * Math.PI / 180;           // camera elevation above the equator
 const SPEEDS = { pause: 0, slow: 60, fast: 5 }; // seconds per revolution (0: paused)
 const HALF_X = 3.2, HALF_Y = 2.4;          // zoom window, in units of unit area per point
-const VMAX = { aniso: 0.20, perim: 0.07 }; // colour-bar maxima
-// Candidate colour schemes (choose with ?palette=A..E): heat-map stops, the
-// pentagon / heptagon colours, and the cell-boundary colour.
+const VMAX = { aniso: 0.20, perim: 0.07 }; // color-bar maxima
+// Candidate color schemes (choose with ?palette=A..E): heat-map stops, the
+// pentagon / heptagon colors, and the cell-boundary color.
 const PALETTES = {
   A: { name: "white \u2192 yellow \u2192 orange; teal / purple",
        stops: ["#ffffff", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014"],
@@ -29,7 +29,7 @@ const PAL = PALETTES[new URLSearchParams(location.search).get("palette")] || PAL
 const YLORBR = PAL.stops;
 const shade = (h, f) => "#" + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * f)
   .toString(16).padStart(2, "0")).join("");
-// Colour by number of sides; <= 4 share one shade and 8+ another, matching the legend.
+// Color by number of sides; <= 4 share one shade and 8+ another, matching the legend.
 const DEFECT = { 3: shade(PAL.pent, 0.7), 4: shade(PAL.pent, 0.7), 5: PAL.pent, 6: "#f3efe6",
                  7: PAL.hept, 8: shade(PAL.hept, 0.7), 9: shade(PAL.hept, 0.7) };
 const BOX_COLOR = "rgba(90,90,90,0.45)";   // zoom box on the sphere: gray, nearly transparent
@@ -149,7 +149,7 @@ function rotZ(p, a) {
   return [c * p[0] - s * p[1], s * p[0] + c * p[1], p[2]];
 }
 
-// Per-point packed colours for large N (recomputed when the colouring changes).
+// Per-point packed colors for large N (recomputed when the coloring changes).
 function pointColors(rec) {
   const key = `${state.mode}|${state.metric}|${state.outline}`;
   if (rec._ckey === key) return rec._colors;
@@ -242,7 +242,7 @@ function drawSphere(card, angle) {
   drawSphereOverlay(ctx, n, rad, cx, cy);
 }
 
-// Limb and the zoom box at the centre of view.
+// Limb and the zoom box at the center of view.
 function drawSphereOverlay(ctx, n, rad, cx, cy) {
   ctx.lineWidth = 1.2 * (window.devicePixelRatio || 1);
   ctx.strokeStyle = "#222";
@@ -260,7 +260,7 @@ function drawZoom(card, angle) {
   const [w, h] = sizeCanvas(cv, HALF_Y / HALF_X);
   const ctx = cv.getContext("2d");
   ctx.clearRect(0, 0, w, h);
-  // Body-frame point at the centre of view, and its tangent frame.
+  // Body-frame point at the center of view, and its tangent frame.
   const c = rotZ(D, -angle);
   let e = [-c[1], c[0], 0];
   const en = Math.hypot(e[0], e[1]) || 1;
@@ -307,7 +307,7 @@ function drawZoom(card, angle) {
   dots.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); });
 }
 
-// Red (5 neighbours) / blue (7) / darker (4, 8+) outlines over the heat map.
+// Red (5 neighbors) / blue (7) / darker (4, 8+) outlines over the heat map.
 function strokeDefects(ctx, rec, cells, proj, lw, band) {
   ctx.save();
   ctx.lineWidth = lw;
@@ -337,7 +337,7 @@ function drawAll() {
 // -------------------------------------------------------------- legend ---
 function updateLegend() {
   const el = document.getElementById("legend");
-  const chips = (fill) => [[5, "5 neighbours (pentagon)"], [7, "7 neighbours (heptagon)"], [4, "4"], [8, "8+"]]
+  const chips = (fill) => [[5, "5 neighbors (pentagon)"], [7, "7 neighbors (heptagon)"], [4, "4"], [8, "8+"]]
     .map(([d, t]) => `<span class="chip"><span style="${fill ? `background:${DEFECT[d]}` : `border:2.5px solid ${DEFECT[d]};background:transparent`}"></span>${t}</span>`).join("");
   if (state.mode === "defect") {
     el.innerHTML = `<div class="chips">${chips(true)}<span class="chip"><span style="background:${DEFECT[6]}"></span>6 (hexagon)</span></div>`;
@@ -385,7 +385,7 @@ function setSpeed(speed) {
 function updateZoomLabel() {
   const cells = Math.round(4 * HALF_X * HALF_Y * state.zoomScale ** 2);
   document.getElementById("zoominfo").textContent =
-    `Inset: about ${cells} cells around the centre of view, so it zooms in as N grows. Scroll over a sphere to resize it.`;
+    `Inset: about ${cells} cells around the center of view, so it zooms in as N grows. Scroll over a sphere to resize it.`;
 }
 
 // One three-way control: perim | aniso (heat maps) or defect.

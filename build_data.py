@@ -3,7 +3,7 @@
 For every construction and every target N, computes the spherical Voronoi
 diagram of the point set and, for each cell,
 
-  * ``deg``:   number of Voronoi edges (= Delaunay neighbours),
+  * ``deg``:   number of Voronoi edges (= Delaunay neighbors),
   * ``aniso``: anisotropy sqrt(lambda_max / lambda_min) - 1 of the cell's
                second-moment tensor in the tangent plane (as in the paper's
                Figure 5; 0 for a regular hexagon),
@@ -33,7 +33,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "data")
 TARGETS = [250, 500, 1000, 2000, 4000, 10000, 30000, 100000]
 FULL_MAX = 10000  # targets above this: binary per-point data plus only the cells the zoom can show
-ELEV = math.radians(22.0)  # must match ELEV in app.js: the zoom centre stays at this latitude
+ELEV = math.radians(22.0)  # must match ELEV in app.js: the zoom center stays at this latitude
 ZOOM_R = 1.8 * math.hypot(3.2, 2.4)  # zoom cell-selection radius (app.js), in units of unit area per point
 CONSTRUCTIONS = [  # (key, display name, family, module)
     ("fib", "Fibonacci lattice", "Spiral (Swinbank\u2013Purser, odd N)", fibonacci_lattice),

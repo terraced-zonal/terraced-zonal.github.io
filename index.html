@@ -54,14 +54,14 @@
 <header>
   <div class="intro">
   <h1>A Linear-Time Construction on &#x1D54A;<sup>2</sup> Achieving a Sublinear Energy Gap on Smale&rsquo;s Seventh Problem</h1>
-  <p>Four published constructions and <b>TerracedZonal</b> (right), with every point's Voronoi cell coloured by how far it is from a regular hexagon. The sphere turns slowly; the framed panel below each sphere is an equal-area zoom of the boxed region at the centre of view, scaled to unit area per point.</p>
+  <p>Four published constructions and <b>TerracedZonal</b> (right), with every point's Voronoi cell colored by how far it is from a regular hexagon. The sphere turns slowly; the framed panel below each sphere is an equal-area zoom of the boxed region at the center of view, scaled to unit area per point.</p>
   </div>
   <div class="legend" id="legend"></div>
 </header>
 
 <div class="controls">
   <div class="control">
-    <div class="seg" id="view" role="radiogroup" aria-label="Colouring">
+    <div class="seg" id="view" role="radiogroup" aria-label="Coloring">
       <div class="knob"></div>
       <button data-view="perim" role="radio">Perimeter excess</button>
       <button data-view="aniso" role="radio">Cell anisotropy</button>
@@ -90,9 +90,9 @@
 <div class="row" id="row"></div>
 
 <footer>
-  <b>Why the perimeter.</b> The Voronoi cells of the triangular lattice are regular hexagons, and the regular hexagonal tiling has the least perimeter of any partition of the plane into equal areas (Hales's honeycomb theorem, 2001). The triangular lattice also minimizes the lattice energies behind the conjectured optimal logarithmic energy (Rankin 1953; Cassels 1959; Montgomery 1988; Sandier&ndash;Serfaty 2012; B&eacute;termin&ndash;Sandier 2018). We therefore colour each cell by its <b>perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of a regular spherical hexagon of the same area: it is 0 for a perfect cell and at least 2.4% for any pentagon. No theorem bounds the logarithmic energy by it; it is a geometric diagnostic, whose mean tracks the energy gap closely across these constructions. Cards report the <b>mean</b> (the energy is a sum over points) and the share of cells more than 1% above P<sub>hex</sub> (how concentrated the distortion is).
+  <b>Why the perimeter.</b> The Voronoi cells of the triangular lattice are regular hexagons, and the regular hexagonal tiling has the least perimeter of any partition of the plane into equal areas (Hales's honeycomb theorem, 2001). The triangular lattice also minimizes the lattice energies behind the conjectured optimal logarithmic energy (Rankin 1953; Cassels 1959; Montgomery 1988; Sandier&ndash;Serfaty 2012; B&eacute;termin&ndash;Sandier 2018). We therefore color each cell by its <b>perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of a regular spherical hexagon of the same area: it is 0 for a perfect cell and at least 2.4% for any pentagon. No theorem bounds the logarithmic energy by it; it is a geometric diagnostic, whose mean tracks the energy gap closely across these constructions. Cards report the <b>mean</b> (the energy is a sum over points) and the share of cells more than 1% above P<sub>hex</sub> (how concentrated the distortion is).
   <b>Anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell's second-moment tensor measures elongation: it picks up sheared or stretched hexagons, but a nearly regular pentagon or heptagon scores low.
-  <b>Pentagons / heptagons:</b> a cell&rsquo;s neighbours are the cells it shares an edge with, so its number of neighbours is its number of sides: 6 for a hexagon, 5 for a pentagon, 7 for a heptagon. On any sphere, the sum of (6 &minus; sides) over all cells is 12 (Euler&rsquo;s formula), so when every cell has 5 to 7 sides there are exactly 12 more pentagons than heptagons. Cells with 5 neighbours (pentagons) and 7 neighbours (heptagons) get the two colours shown in the legend, and 4 or 8+ darker shades of them; the outline option marks them over either heat map. Each construction uses its nearest admissible N (shown on each card).
+  <b>Pentagons / heptagons:</b> a cell&rsquo;s neighbors are the cells it shares an edge with, so its number of neighbors is its number of sides: 6 for a hexagon, 5 for a pentagon, 7 for a heptagon. On any sphere, the sum of (6 &minus; sides) over all cells is 12 (Euler&rsquo;s formula), so when every cell has 5 to 7 sides there are exactly 12 more pentagons than heptagons. Cells with 5 neighbors (pentagons) and 7 neighbors (heptagons) get the two colors shown in the legend, and 4 or 8+ darker shades of them; the outline option marks them over either heat map. Each construction uses its nearest admissible N (shown on each card).
 </footer>
 
 <script src="app.js"></script>
