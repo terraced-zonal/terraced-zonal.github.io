@@ -29,8 +29,9 @@ const PAL = PALETTES[new URLSearchParams(location.search).get("palette")] || PAL
 const YLORBR = PAL.stops;
 const shade = (h, f) => "#" + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * f)
   .toString(16).padStart(2, "0")).join("");
-const DEFECT = { 3: shade(PAL.pent, 0.45), 4: shade(PAL.pent, 0.7), 5: PAL.pent, 6: "#f3efe6",
-                 7: PAL.hept, 8: shade(PAL.hept, 0.7), 9: shade(PAL.hept, 0.45) };
+// Colour by number of sides; <= 4 share one shade and 8+ another, matching the legend.
+const DEFECT = { 3: shade(PAL.pent, 0.7), 4: shade(PAL.pent, 0.7), 5: PAL.pent, 6: "#f3efe6",
+                 7: PAL.hept, 8: shade(PAL.hept, 0.7), 9: shade(PAL.hept, 0.7) };
 const BOX_COLOR = "rgba(90,90,90,0.45)";   // zoom box on the sphere: gray, nearly transparent
 
 // Camera basis: view direction d, screen right r, screen up u (right-handed).
