@@ -501,7 +501,7 @@ function setSpeed(speed) {
 function updateZoomLabel() {
   const cells = Math.round(4 * HALF_X * HALF_Y * state.zoomScale ** 2);
   document.getElementById("zoominfo").textContent =
-    `Inset: about ${cells} cells around the center of view, so it zooms in as N grows. Drag a sphere to rotate it; scroll over an inset to zoom.`;
+    `Inset: about ${cells} cells around the center of view, so it zooms in as N grows. Drag a sphere to rotate it; scroll or pinch on an inset to zoom.`;
 }
 
 // One three-way control: perim | aniso (heat maps) or defect.
@@ -532,12 +532,25 @@ async function main() {
   });
   document.querySelectorAll("#speed button").forEach(b =>
     b.addEventListener("click", () => setSpeed(b.dataset.speed)));
+  const applyZoom = z => {
+    const maxZ = state.manifest.targets[state.tIdx] > 10000 ? 1.6 : 3;
+    state.zoomScale = Math.min(maxZ, Math.max(0.4, z));
+    updateZoomLabel();
+    drawAll();
+  };
   // Drag a sphere (upper row) to rotate it while the zoom box stays fixed at the center.
-  let drag = null;
+  let drag = null, pinch = null;
+  const stopDrag = () => {
+    if (!drag) return;
+    drag = null;
+    state.dragging = false;
+    state.cards.forEach(c => c.sphere.classList.remove("dragging"));
+  };
   const onPointerDown = ev => {
+    if (!ev.isPrimary || pinch) { stopDrag(); return; }
     if (ev.button !== undefined && ev.button !== 0) return;
     ev.preventDefault();
-    ev.currentTarget.setPointerCapture(ev.pointerId);
+    try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch (_) {}
     state.dragging = true;
     state.cards.forEach(c => c.sphere.classList.add("dragging"));
     drag = {
@@ -548,7 +561,7 @@ async function main() {
     };
   };
   const onPointerMove = ev => {
-    if (!drag || ev.pointerId !== drag.id) return;
+    if (!drag || pinch || ev.pointerId !== drag.id) return;
     const dx = ev.clientX - drag.x;
     const dy = ev.clientY - drag.y;
     drag.x = ev.clientX;
@@ -560,17 +573,52 @@ async function main() {
   };
   const onPointerUp = ev => {
     if (!drag || ev.pointerId !== drag.id) return;
-    drag = null;
-    state.dragging = false;
-    state.cards.forEach(c => c.sphere.classList.remove("dragging"));
+    stopDrag();
   };
-  // Scroll over an inset (lower row) to change the level of zoom.
+  // Scroll or pinch to change the level of zoom.
   const onWheel = ev => {
     ev.preventDefault();
-    const maxZ = state.manifest.targets[state.tIdx] > 10000 ? 1.6 : 3;
-    state.zoomScale = Math.min(maxZ, Math.max(0.4, state.zoomScale * Math.exp(ev.deltaY * 0.0015)));
-    updateZoomLabel(); drawAll();
+    const rate = ev.ctrlKey ? 0.008 : 0.0015;
+    applyZoom(state.zoomScale * Math.exp(ev.deltaY * rate));
   };
+  const rowEl = document.getElementById("row");
+  const touchesRow = touches => Array.from(touches).some(t => rowEl.contains(t.target));
+  const touchDist = t => Math.hypot(t[1].clientX - t[0].clientX, t[1].clientY - t[0].clientY);
+  const onTouchStart = ev => {
+    if (ev.touches.length >= 2 && touchesRow(ev.touches)) {
+      ev.preventDefault();
+      stopDrag();
+      const d0 = touchDist(ev.touches);
+      if (d0 > 4) pinch = { d0, zoom0: state.zoomScale };
+    }
+  };
+  const onTouchMove = ev => {
+    if (ev.touches.length >= 2 && (pinch || touchesRow(ev.touches))) {
+      ev.preventDefault();
+      stopDrag();
+      const d = touchDist(ev.touches);
+      if (!pinch && d > 4) pinch = { d0: d, zoom0: state.zoomScale };
+      if (pinch && d > 4) applyZoom(pinch.zoom0 * (pinch.d0 / d));
+    }
+  };
+  const onTouchEnd = ev => {
+    if (ev.touches.length < 2) pinch = null;
+  };
+  window.addEventListener("touchstart", onTouchStart, { passive: false });
+  window.addEventListener("touchmove", onTouchMove, { passive: false });
+  window.addEventListener("touchend", onTouchEnd);
+  window.addEventListener("touchcancel", onTouchEnd);
+  let gestureZoom0 = null;
+  rowEl.addEventListener("gesturestart", ev => {
+    ev.preventDefault();
+    stopDrag();
+    gestureZoom0 = state.zoomScale;
+  }, { passive: false });
+  rowEl.addEventListener("gesturechange", ev => {
+    ev.preventDefault();
+    if (!pinch && gestureZoom0 && ev.scale > 0) applyZoom(gestureZoom0 / ev.scale);
+  }, { passive: false });
+  rowEl.addEventListener("gestureend", () => { gestureZoom0 = null; });
   state.cards.forEach(c => {
     c.sphere.addEventListener("pointerdown", onPointerDown);
     c.sphere.addEventListener("pointermove", onPointerMove);
