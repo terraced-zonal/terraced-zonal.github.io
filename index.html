@@ -36,6 +36,8 @@
   .title { font-size: 16px; text-align: center; }
   .family { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 4px; font-family: system-ui, sans-serif; }
   canvas { display: block; width: 100%; }
+  canvas.sphere { cursor: grab; touch-action: none; user-select: none; }
+  canvas.sphere.dragging { cursor: grabbing; }
   canvas.zoom { border: 1px solid #c4c8cf; border-radius: 3px; margin-top: 6px; }
   .stats { font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); text-align: center; margin-top: 6px; min-height: 2.6em; }
   .colorbar { width: 320px; }

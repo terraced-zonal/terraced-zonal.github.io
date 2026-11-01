@@ -35,12 +35,20 @@ const DEFECT = { 3: shade(PAL.pent, 0.7), 4: shade(PAL.pent, 0.7), 5: PAL.pent, 
 const BOX_COLOR = "rgba(90,90,90,0.45)";   // zoom box on the sphere: gray, nearly transparent
 
 // Camera basis: view direction d, screen right r, screen up u (right-handed).
+const ZOOM_BAND_R = 1.8 * Math.hypot(HALF_X, HALF_Y);
 const D = [Math.cos(ELEV), 0, Math.sin(ELEV)];
 const R = [0, 1, 0];
 const U = [-Math.sin(ELEV), 0, Math.cos(ELEV)];
 
-const state = { mode: "heat", metric: "perim", outline: true, tIdx: 5, speed: "slow", angle: 0, zoomScale: 1,
+const state = { mode: "heat", metric: "perim", outline: true, tIdx: 5, speed: "slow",
+                angle: 0, elev: ELEV, dragging: false, zoomScale: 1,
                 manifest: null, cache: {}, cards: [] };
+
+function setElev(elev) {
+  state.elev = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, elev));
+  D[0] = Math.cos(state.elev); D[1] = 0; D[2] = Math.sin(state.elev);
+  U[0] = -Math.sin(state.elev); U[1] = 0; U[2] = Math.cos(state.elev);
+}
 
 const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 const YLORBR_RGB = YLORBR.map(hex2rgb);
@@ -255,6 +263,114 @@ function drawSphereOverlay(ctx, n, rad, cx, cy) {
   ctx.strokeRect(cx - bx, cy - by, 2 * bx, 2 * by);
 }
 
+// On-the-fly spherical Voronoi cells in the zoom cap when large-N spheres are
+// tilted away from the precomputed 22-degree latitude band.
+function largeZoomPatch(rec, c, e, nn, scale, rVis) {
+  if (Math.abs(state.elev - ELEV) + rVis <= ZOOM_BAND_R / scale + 0.005) {
+    return { cells: rec.band_cells, verts: rec.band_verts, regions: rec.band_regions };
+  }
+  const key = `${state.angle}|${state.elev}|${state.zoomScale}`;
+  if (rec._patchKey === key) return rec._patch;
+  const P = rec.pts, n = rec.n;
+  if (!rec._zBuckets) {
+    const buckets = Array.from({ length: 64 }, () => []);
+    for (let k = 0; k < n; k++) {
+      const b = Math.max(0, Math.min(63, Math.floor((P[3 * k + 2] + 1) * 32)));
+      buckets[b].push(k);
+    }
+    rec._zBuckets = buckets;
+  }
+  const rNbr = rVis + 3.5 / scale;
+  const cosVis = Math.cos(rVis), cosNbr = Math.cos(rNbr);
+  const zMin = Math.sin(Math.max(-Math.PI / 2, state.elev - rNbr));
+  const zMax = Math.sin(Math.min(Math.PI / 2, state.elev + rNbr));
+  const bMin = Math.max(0, Math.floor((zMin + 1) * 32));
+  const bMax = Math.min(63, Math.floor((zMax + 1) * 32));
+  const idx = [], A = [], X = [], Y = [], vis = [];
+  const grid = new Map(), gh = 1.2 / scale;
+  for (let b = bMin; b <= bMax; b++) {
+    const bucket = rec._zBuckets[b];
+    for (let m = 0; m < bucket.length; m++) {
+      const k = bucket[m];
+      const px = P[3 * k], py = P[3 * k + 1], pz = P[3 * k + 2];
+      const a = px * c[0] + py * c[1] + pz * c[2];
+      if (a < cosNbr) continue;
+      const i = idx.length;
+      const x = px * e[0] + py * e[1] + pz * e[2];
+      const y = px * nn[0] + py * nn[1] + pz * nn[2];
+      idx.push(k); A.push(a); X.push(x); Y.push(y);
+      if (a >= cosVis) vis.push(i);
+      const gk = (Math.floor(x / gh) << 16) ^ (Math.floor(y / gh) & 0xffff);
+      let cell = grid.get(gk);
+      if (!cell) { cell = []; grid.set(gk, cell); }
+      cell.push(i);
+    }
+  }
+  const rad0 = 3.0 / scale;
+  const cells = [], verts = [], regions = [];
+  for (const i of vis) {
+    const ak = A[i], xk = X[i], yk = Y[i];
+    const cx0 = xk / ak, cy0 = yk / ak;
+    const gx0 = Math.floor(xk / gh), gy0 = Math.floor(yk / gh);
+    const nbrs = [];
+    for (let dx = -2; dx <= 2; dx++) {
+      for (let dy = -2; dy <= 2; dy++) {
+        const bucket = grid.get(((gx0 + dx) << 16) ^ ((gy0 + dy) & 0xffff));
+        if (!bucket) continue;
+        for (let m = 0; m < bucket.length; m++) {
+          const j = bucket[m];
+          if (j === i) continue;
+          const ddx = X[j] - xk, ddy = Y[j] - yk;
+          nbrs.push({ j, d2: ddx * ddx + ddy * ddy });
+        }
+      }
+    }
+    nbrs.sort((u, v) => u.d2 - v.d2);
+    let poly = [
+      [cx0 - rad0, cy0 - rad0], [cx0 + rad0, cy0 - rad0],
+      [cx0 + rad0, cy0 + rad0], [cx0 - rad0, cy0 + rad0],
+    ];
+    for (let m = 0; m < nbrs.length; m++) {
+      const { j, d2 } = nbrs[m];
+      let maxR2 = 0;
+      for (let p = 0; p < poly.length; p++) {
+        const r2 = (poly[p][0] - cx0) ** 2 + (poly[p][1] - cy0) ** 2;
+        if (r2 > maxR2) maxR2 = r2;
+      }
+      if (d2 > 4.5 * maxR2) break;
+      const c0 = ak - A[j], nx = xk - X[j], ny = yk - Y[j];
+      const out = [];
+      for (let p = 0; p < poly.length; p++) {
+        const P1 = poly[p], P2 = poly[(p + 1) % poly.length];
+        const v1 = c0 + nx * P1[0] + ny * P1[1];
+        const v2 = c0 + nx * P2[0] + ny * P2[1];
+        if (v1 >= 0) out.push(P1);
+        if ((v1 >= 0) !== (v2 >= 0)) {
+          const t = v1 / (v1 - v2);
+          out.push([P1[0] + t * (P2[0] - P1[0]), P1[1] + t * (P2[1] - P1[1])]);
+        }
+      }
+      poly = out;
+      if (poly.length < 3) break;
+    }
+    if (poly.length < 3) continue;
+    const reg = [];
+    for (let p = 0; p < poly.length; p++) {
+      const vx = poly[p][0], vy = poly[p][1];
+      const inv = 1 / Math.hypot(1, vx, vy);
+      reg.push(verts.length / 3);
+      verts.push((c[0] + vx * e[0] + vy * nn[0]) * inv,
+                 (c[1] + vx * e[1] + vy * nn[1]) * inv,
+                 (c[2] + vx * e[2] + vy * nn[2]) * inv);
+    }
+    cells.push(idx[i]);
+    regions.push(reg);
+  }
+  rec._patchKey = key;
+  rec._patch = { cells, verts: Float32Array.from(verts), regions };
+  return rec._patch;
+}
+
 function drawZoom(card, angle) {
   const rec = card.rec, cv = card.zoom;
   const [w, h] = sizeCanvas(cv, HALF_Y / HALF_X);
@@ -262,14 +378,14 @@ function drawZoom(card, angle) {
   ctx.clearRect(0, 0, w, h);
   // Body-frame point at the center of view, and its tangent frame.
   const c = rotZ(D, -angle);
-  let e = [-c[1], c[0], 0];
-  const en = Math.hypot(e[0], e[1]) || 1;
-  e = [e[0] / en, e[1] / en, 0];
-  const nn = [c[1] * e[2] - c[2] * e[1], c[2] * e[0] - c[0] * e[2], c[0] * e[1] - c[1] * e[0]];
+  const e = rotZ(R, -angle);
+  const nn = rotZ(U, -angle);
   const n = rec.n, scale = Math.sqrt(n / (4 * Math.PI));
   const px = w / (2 * HALF_X * state.zoomScale);
-  const cosr = Math.cos(1.8 * state.zoomScale * Math.hypot(HALF_X, HALF_Y) / scale);
-  const V = rec.large ? rec.band_verts : rec.verts, P = rec.pts;
+  const rVis = 1.8 * state.zoomScale * Math.hypot(HALF_X, HALF_Y) / scale;
+  const cosr = Math.cos(rVis);
+  const patch = rec.large ? largeZoomPatch(rec, c, e, nn, scale, rVis) : null;
+  const V = rec.large ? patch.verts : rec.verts, P = rec.pts;
   const proj = i => {
     const x = V[3 * i], y = V[3 * i + 1], z = V[3 * i + 2];
     const k = Math.sqrt(2 / (1 + x * c[0] + y * c[1] + z * c[2]));
@@ -279,9 +395,9 @@ function drawZoom(card, angle) {
   ctx.lineWidth = 0.9 * (window.devicePixelRatio || 1);
   ctx.strokeStyle = PAL.zedge;
   const dots = [], outlined = [];
-  const cellList = rec.large ? rec.band_cells : null;
+  const cellList = rec.large ? patch.cells : null;
   const nIter = rec.large ? cellList.length : n;
-  const regionOf = rec.large ? (i => rec.band_regions[i]) : (k => rec.regions[k]);
+  const regionOf = rec.large ? (i => patch.regions[i]) : (k => rec.regions[k]);
   for (let i = 0; i < nIter; i++) {
     const k = rec.large ? cellList[i] : i;
     const dot = P[3 * k] * c[0] + P[3 * k + 1] * c[1] + P[3 * k + 2] * c[2];
@@ -301,20 +417,20 @@ function drawZoom(card, angle) {
     dots.push([w / 2 + px * scale * kk * (x * e[0] + y * e[1] + z * e[2]),
                h / 2 - px * scale * kk * (x * nn[0] + y * nn[1] + z * nn[2])]);
   }
-  strokeDefects(ctx, rec, outlined, proj, 2.6 * (window.devicePixelRatio || 1), rec.large);
+  strokeDefects(ctx, rec, outlined, proj, 2.6 * (window.devicePixelRatio || 1), patch);
   ctx.fillStyle = "#111";
   const r = Math.max(0.8, 1.8 / Math.sqrt(state.zoomScale)) * (window.devicePixelRatio || 1);
   dots.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); });
 }
 
 // Red (5 neighbors) / blue (7) / darker (4, 8+) outlines over the heat map.
-function strokeDefects(ctx, rec, cells, proj, lw, band) {
+function strokeDefects(ctx, rec, cells, proj, lw, patch) {
   ctx.save();
   ctx.lineWidth = lw;
   ctx.lineJoin = "round";
   for (const i of cells) {
-    const k = band ? rec.band_cells[i] : i;
-    const reg = band ? rec.band_regions[i] : rec.regions[k];
+    const k = patch ? patch.cells[i] : i;
+    const reg = patch ? patch.regions[i] : rec.regions[k];
     ctx.beginPath();
     let q = proj(reg[0]);
     ctx.moveTo(q[0], q[1]);
@@ -385,7 +501,7 @@ function setSpeed(speed) {
 function updateZoomLabel() {
   const cells = Math.round(4 * HALF_X * HALF_Y * state.zoomScale ** 2);
   document.getElementById("zoominfo").textContent =
-    `Inset: about ${cells} cells around the center of view, so it zooms in as N grows. Scroll over a sphere to resize it.`;
+    `Inset: about ${cells} cells around the center of view, so it zooms in as N grows. Drag a sphere to rotate it; scroll over an inset to zoom.`;
 }
 
 // One three-way control: perim | aniso (heat maps) or defect.
@@ -416,15 +532,52 @@ async function main() {
   });
   document.querySelectorAll("#speed button").forEach(b =>
     b.addEventListener("click", () => setSpeed(b.dataset.speed)));
-  // Scroll over a sphere or its inset to change the size of the zoom window.
+  // Drag a sphere (upper row) to rotate it while the zoom box stays fixed at the center.
+  let drag = null;
+  const onPointerDown = ev => {
+    if (ev.button !== undefined && ev.button !== 0) return;
+    ev.preventDefault();
+    ev.currentTarget.setPointerCapture(ev.pointerId);
+    state.dragging = true;
+    state.cards.forEach(c => c.sphere.classList.add("dragging"));
+    drag = {
+      id: ev.pointerId,
+      x: ev.clientX,
+      y: ev.clientY,
+      rad: 0.46 * Math.min(ev.currentTarget.clientWidth, ev.currentTarget.clientHeight) || 100,
+    };
+  };
+  const onPointerMove = ev => {
+    if (!drag || ev.pointerId !== drag.id) return;
+    const dx = ev.clientX - drag.x;
+    const dy = ev.clientY - drag.y;
+    drag.x = ev.clientX;
+    drag.y = ev.clientY;
+    setElev(state.elev + dy / drag.rad);
+    const cosE = Math.max(0.3, Math.cos(state.elev));
+    state.angle = ((state.angle + dx / (drag.rad * cosE)) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    drawAll();
+  };
+  const onPointerUp = ev => {
+    if (!drag || ev.pointerId !== drag.id) return;
+    drag = null;
+    state.dragging = false;
+    state.cards.forEach(c => c.sphere.classList.remove("dragging"));
+  };
+  // Scroll over an inset (lower row) to change the level of zoom.
   const onWheel = ev => {
     ev.preventDefault();
-    const maxZ = state.manifest.targets[state.tIdx] > 10000 ? 1.6 : 3;  // band data limits large N
+    const maxZ = state.manifest.targets[state.tIdx] > 10000 ? 1.6 : 3;
     state.zoomScale = Math.min(maxZ, Math.max(0.4, state.zoomScale * Math.exp(ev.deltaY * 0.0015)));
     updateZoomLabel(); drawAll();
   };
-  state.cards.forEach(c => { c.sphere.addEventListener("wheel", onWheel, { passive: false });
-                             c.zoom.addEventListener("wheel", onWheel, { passive: false }); });
+  state.cards.forEach(c => {
+    c.sphere.addEventListener("pointerdown", onPointerDown);
+    c.sphere.addEventListener("pointermove", onPointerMove);
+    c.sphere.addEventListener("pointerup", onPointerUp);
+    c.sphere.addEventListener("pointercancel", onPointerUp);
+    c.zoom.addEventListener("wheel", onWheel, { passive: false });
+  });
   window.addEventListener("resize", () => { setView(state.mode === "defect" ? "defect" : state.metric); setSpeed(state.speed); });
   // Optional URL parameters, e.g. ?view=defect&n=3 (legacy: mode=defect, metric=aniso)
   const qs = new URLSearchParams(location.search);
@@ -433,6 +586,7 @@ async function main() {
   if (qs.get("outline") === "0") { state.outline = false; document.getElementById("outline").checked = false; }
   if (qs.has("n")) slider.value = qs.get("n");
   if (qs.has("speed")) state.speed = qs.get("speed");
+  if (qs.has("elev")) setElev(Number(qs.get("elev")) * Math.PI / 180);
   setView(view);
   setSpeed(state.speed);
   updateZoomLabel();
@@ -442,7 +596,7 @@ async function main() {
     const dt = (now - last) / 1000;
     last = now;
     const period = SPEEDS[state.speed];
-    if (period) {
+    if (period && !state.dragging) {
       state.angle = (state.angle + 2 * Math.PI * dt / period) % (2 * Math.PI);
       drawAll();
     }
