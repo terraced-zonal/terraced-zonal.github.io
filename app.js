@@ -94,14 +94,7 @@ async function fetchRecord(file) {
   return j;
 }
 
-// Targets above the largest one with cell data (N = 1e6..1e8) have energies only;
-// their cards keep the picture and cell statistics of the largest data set.
-const hasData = tIdx => state.manifest.constructions.every(c => c.files[String(state.manifest.targets[tIdx])].file);
-function dataIdx(tIdx) {
-  for (let i = tIdx; i > 0; i--) if (hasData(i)) return i;
-  return 0;
-}
-const filesFor = tIdx => state.manifest.constructions.map(c => c.files[String(state.manifest.targets[dataIdx(tIdx)])].file);
+const filesFor = tIdx => state.manifest.constructions.map(c => c.files[String(state.manifest.targets[tIdx])].file);
 const isLoaded = tIdx => filesFor(tIdx).every(f => state.loaded.has(f));
 
 function loadSet(tIdx) {
@@ -124,15 +117,13 @@ function makeCards() {
       (c.key === "tz" ? '<div class="badge">this paper</div>' : "") +
       `<div class="title">${c.name}</div>` +
       `<div class="family">${c.family} &middot; <span class="nval"></span></div>` +
-      '<div class="pnote"><span></span></div>' +
       '<canvas class="sphere"></canvas><canvas class="zoom"></canvas>' +
       '<div class="stats"></div><div class="energy"></div>';
     row.appendChild(card);
     state.cards.push({ el: card, key: c.key, sphere: card.querySelector(".sphere"),
                        zoom: card.querySelector(".zoom"), stats: card.querySelector(".stats"),
                        energy: card.querySelector(".energy"), files: c.files,
-                       nval: card.querySelector(".nval"), pnote: card.querySelector(".pnote span"),
-                       rec: null });
+                       nval: card.querySelector(".nval"), rec: null });
   });
 }
 
@@ -195,18 +186,13 @@ function updateEnergies() {
   const gaps = state.cards.map(c => c.gap).filter(Number.isFinite);
   const best = gaps.length ? Math.min(...gaps) : NaN;
   state.cards.forEach(card => {
-    const label = `<div class="glbl">gap per point${FN(1)} (E &minus; E<sub>BHS</sub>)/N</div>`;
-    if (!Number.isFinite(card.gap)) {
-      card.energy.classList.remove("best");
-      card.energy.innerHTML = label + `<div class="gval">&mdash;</div><div class="eraw">not computed at this N${FN(6)}</div>`;
-      return;
-    }
+    if (!Number.isFinite(card.gap)) { card.energy.innerHTML = ""; return; }
     const isBest = card.gap === best;
     card.energy.classList.toggle("best", isBest);
-    const rel = card.method === "ewald" ? "&asymp;" : "=";  // Ewald values are estimates (note 6)
-    card.energy.innerHTML = label +
+    card.energy.innerHTML =
+      `<div class="glbl">gap per point${FN(1)} (E &minus; E<sub>BHS</sub>)/N</div>` +
       `<div class="gval">${fmtSci(card.gap, GAP_DIGITS, true)}${isBest ? ' <span class="low">lowest</span>' : ""}</div>` +
-      (Number.isFinite(card.E) ? `<div class="eraw">E ${rel} ${fmtSci(card.E, E_DIGITS, false)}</div>` : "");
+      (Number.isFinite(card.E) ? `<div class="eraw">E = ${fmtSci(card.E, E_DIGITS, false)}</div>` : "");
   });
 }
 
@@ -581,16 +567,12 @@ function previewN(tIdx) {
   state.tIdx = tIdx;
   if (state.manifest.targets[tIdx] > 10000) state.zoomScale = Math.min(state.zoomScale, 1.6);
   updateZoomLabel();
-  const d = dataIdx(tIdx);
   state.cards.forEach(card => {
-    const f = fileOf(card, tIdx), fd = fileOf(card, d);
+    const f = fileOf(card, tIdx);
     card.nval.textContent = "N = " + f.n.toLocaleString();
     card.E = f.energy;
     card.gap = f.excess;
-    card.method = f.method || "exact";
-    card.el.classList.toggle("loading", !(card.rec && card.rec.n === fd.n));
-    card.el.classList.toggle("beyond", d !== tIdx);
-    card.pnote.innerHTML = d !== tIdx ? `picture and cell statistics: N = ${fd.n.toLocaleString()}${FN(6)}` : "";
+    card.el.classList.toggle("loading", !(card.rec && card.rec.n === f.n));
   });
   updateEnergies();
 }
