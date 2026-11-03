@@ -6,8 +6,9 @@ const ELEV = 22 * Math.PI / 180;           // camera elevation above the equator
 const SPEEDS = { pause: 0, slow: 60, fast: 5 }; // seconds per revolution (0: paused)
 const HALF_X = 3.2, HALF_Y = 2.4;          // zoom window, in units of unit area per point
 const VMAX = { aniso: 0.20, perim: 0.07 }; // color-bar maxima
-// Candidate color schemes (choose with ?palette=A..E): heat-map stops, the
-// pentagon / heptagon colors, and the cell-boundary color.
+// Color schemes: heat-map stops, the pentagon / heptagon colors, and the
+// cell-boundary color. Clicking the legend's color bar (or the pentagon /
+// heptagon chips) cycles through PALETTE_ORDER; ?palette=A..E picks one.
 const PALETTES = {
   A: { name: "white \u2192 yellow \u2192 orange; teal / purple",
        stops: ["#ffffff", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014"],
@@ -21,17 +22,24 @@ const PALETTES = {
   D: { name: "white \u2192 blue; orange / purple",
        stops: ["#ffffff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd"],
        pent: "#e66100", hept: "#5d3a9b", edge: "rgba(110,110,110,0.55)", zedge: "#8c8c8c" },
-  E: { name: "current (yellow \u2192 brown), gray boundaries; red / blue",
+  E: { name: "yellow \u2192 brown; red / blue",
        stops: ["#ffffe5", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#993404", "#662506"],
        pent: "#e3412f", hept: "#1a73e8", edge: "rgba(120,120,120,0.55)", zedge: "#9a9a9a" },
 };
-const PAL = PALETTES[new URLSearchParams(location.search).get("palette")] || PALETTES.E;
-const YLORBR = PAL.stops;
+const PALETTE_ORDER = ["E", "A", "B", "C", "D"];
+let PAL_KEY = new URLSearchParams(location.search).get("palette");
+if (!(PAL_KEY in PALETTES)) PAL_KEY = "E";
+let PAL = PALETTES[PAL_KEY];
+let YLORBR = PAL.stops;
 const shade = (h, f) => "#" + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * f)
   .toString(16).padStart(2, "0")).join("");
 // Color by number of sides; <= 4 share one shade and 8+ another, matching the legend.
-const DEFECT = { 3: shade(PAL.pent, 0.7), 4: shade(PAL.pent, 0.7), 5: PAL.pent, 6: "#f3efe6",
-                 7: PAL.hept, 8: shade(PAL.hept, 0.7), 9: shade(PAL.hept, 0.7) };
+const DEFECT = {};
+function setDefectColors() {
+  Object.assign(DEFECT, { 3: shade(PAL.pent, 0.7), 4: shade(PAL.pent, 0.7), 5: PAL.pent, 6: "#f3efe6",
+                          7: PAL.hept, 8: shade(PAL.hept, 0.7), 9: shade(PAL.hept, 0.7) });
+}
+setDefectColors();
 const SPLAT_MIN_N = 5000;                   // spheres with more points are drawn as pixel splats
 const BOX_COLOR = "rgba(90,90,90,0.45)";   // zoom box on the sphere: gray, nearly transparent
 
@@ -41,7 +49,7 @@ const D = [Math.cos(ELEV), 0, Math.sin(ELEV)];
 const R = [0, 1, 0];
 const U = [-Math.sin(ELEV), 0, Math.cos(ELEV)];
 
-const state = { mode: "heat", metric: "perim", outline: true, tIdx: 5, speed: "slow",
+const state = { mode: "heat", metric: "perim", tIdx: 5, speed: "slow",
                 angle: 0, elev: ELEV, dragging: false, zoomScale: 1,
                 manifest: null, cache: {}, loaded: new Set(), loadSeq: 0, cards: [] };
 
@@ -52,7 +60,7 @@ function setElev(elev) {
 }
 
 const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
-const YLORBR_RGB = YLORBR.map(hex2rgb);
+let YLORBR_RGB = YLORBR.map(hex2rgb);
 function heatRGB(v) {
   const x = Math.max(0, Math.min(1, v)) * (YLORBR_RGB.length - 1);
   const i = Math.min(Math.floor(x), YLORBR_RGB.length - 2), f = x - i;
@@ -86,7 +94,14 @@ async function fetchRecord(file) {
   return j;
 }
 
-const filesFor = tIdx => state.manifest.constructions.map(c => c.files[String(state.manifest.targets[tIdx])].file);
+// Targets above the largest one with cell data (N = 1e6..1e8) have energies only;
+// their cards keep the picture and cell statistics of the largest data set.
+const hasData = tIdx => state.manifest.constructions.every(c => c.files[String(state.manifest.targets[tIdx])].file);
+function dataIdx(tIdx) {
+  for (let i = tIdx; i > 0; i--) if (hasData(i)) return i;
+  return 0;
+}
+const filesFor = tIdx => state.manifest.constructions.map(c => c.files[String(state.manifest.targets[dataIdx(tIdx)])].file);
 const isLoaded = tIdx => filesFor(tIdx).every(f => state.loaded.has(f));
 
 function loadSet(tIdx) {
@@ -109,13 +124,15 @@ function makeCards() {
       (c.key === "tz" ? '<div class="badge">this paper</div>' : "") +
       `<div class="title">${c.name}</div>` +
       `<div class="family">${c.family} &middot; <span class="nval"></span></div>` +
+      '<div class="pnote"><span></span></div>' +
       '<canvas class="sphere"></canvas><canvas class="zoom"></canvas>' +
       '<div class="stats"></div><div class="energy"></div>';
     row.appendChild(card);
     state.cards.push({ el: card, key: c.key, sphere: card.querySelector(".sphere"),
                        zoom: card.querySelector(".zoom"), stats: card.querySelector(".stats"),
                        energy: card.querySelector(".energy"), files: c.files,
-                       nval: card.querySelector(".nval"), rec: null });
+                       nval: card.querySelector(".nval"), pnote: card.querySelector(".pnote span"),
+                       rec: null });
   });
 }
 
@@ -178,13 +195,18 @@ function updateEnergies() {
   const gaps = state.cards.map(c => c.gap).filter(Number.isFinite);
   const best = gaps.length ? Math.min(...gaps) : NaN;
   state.cards.forEach(card => {
-    if (!Number.isFinite(card.gap)) { card.energy.innerHTML = ""; return; }
+    const label = `<div class="glbl">gap per point${FN(1)} (E &minus; E<sub>BHS</sub>)/N</div>`;
+    if (!Number.isFinite(card.gap)) {
+      card.energy.classList.remove("best");
+      card.energy.innerHTML = label + `<div class="gval">&mdash;</div><div class="eraw">not computed at this N${FN(6)}</div>`;
+      return;
+    }
     const isBest = card.gap === best;
     card.energy.classList.toggle("best", isBest);
-    card.energy.innerHTML =
-      `<div class="glbl">gap per point${FN(1)} (E &minus; E<sub>BHS</sub>)/N</div>` +
+    const rel = card.method === "ewald" ? "&asymp;" : "=";  // Ewald values are estimates (note 6)
+    card.energy.innerHTML = label +
       `<div class="gval">${fmtSci(card.gap, GAP_DIGITS, true)}${isBest ? ' <span class="low">lowest</span>' : ""}</div>` +
-      (Number.isFinite(card.E) ? `<div class="eraw">E = ${fmtSci(card.E, E_DIGITS, false)}</div>` : "");
+      (Number.isFinite(card.E) ? `<div class="eraw">E ${rel} ${fmtSci(card.E, E_DIGITS, false)}</div>` : "");
   });
 }
 
@@ -219,14 +241,14 @@ function rotZ(p, a) {
 
 // Per-point packed colors for large N (recomputed when the coloring changes).
 function pointColors(rec) {
-  const key = `${state.mode}|${state.metric}|${state.outline}`;
+  const key = `${PAL_KEY}|${state.mode}|${state.metric}`;
   if (rec._ckey === key) return rec._colors;
   const n = rec.n, out = new Uint32Array(n), vmax = VMAX[state.metric], vals = rec[state.metric];
   const defPacked = {};
   for (const d of [3, 4, 5, 6, 7, 8, 9]) defPacked[d] = pack(hex2rgb(DEFECT[d]));
   for (let k = 0; k < n; k++) {
     const d = Math.max(3, Math.min(9, rec.deg[k]));
-    if (state.mode === "defect" || (state.outline && d !== 6)) out[k] = defPacked[d];
+    if (state.mode === "defect") out[k] = defPacked[d];
     else out[k] = pack(heatRGB(vals[k] / vmax));
   }
   rec._ckey = key;
@@ -279,7 +301,7 @@ function drawSphereLarge(card, angle, ctx, w, h, rad, cx, cy) {
   for (let pass = 0; pass < 2; pass++) {
     for (let k = 0; k < n; k++) {
       const isDef = rec.deg[k] !== 6;
-      if ((pass === 0) === (isDef && (state.mode === "defect" || state.outline))) continue;
+      if ((pass === 0) === (isDef && state.mode === "defect")) continue;
       const x = ca * P[3 * k] - sa * P[3 * k + 1], y = sa * P[3 * k] + ca * P[3 * k + 1], z = P[3 * k + 2];
       if (x * D[0] + y * D[1] + z * D[2] <= 0.01) continue;
       const px = Math.round(cx + rad * (x * R[0] + y * R[1] + z * R[2])) - half;
@@ -322,7 +344,6 @@ function drawSphere(card, angle) {
   const lw = Math.max(0.15, 0.5 * Math.sqrt(1000 / n)) * (window.devicePixelRatio || 1);
   ctx.lineWidth = lw;
   ctx.strokeStyle = PAL.edge;
-  const outlined = [];
   for (let k = 0; k < n; k++) {
     const x = ca * P[3 * k] - sa * P[3 * k + 1], y = sa * P[3 * k] + ca * P[3 * k + 1], z = P[3 * k + 2];
     const depth = x * D[0] + y * D[1] + z * D[2];
@@ -335,9 +356,7 @@ function drawSphere(card, angle) {
     ctx.fillStyle = cellColor(rec, k);
     ctx.fill();
     if (n <= 2500) ctx.stroke();
-    if (state.mode === "heat" && state.outline && rec.deg[k] !== 6) outlined.push(k);
   }
-  strokeDefects(ctx, rec, outlined, (i) => [sx[i], sy[i]], 1.3 * (window.devicePixelRatio || 1));
   drawSphereOverlay(ctx, n, rad, cx, cy);
 }
 
@@ -485,7 +504,7 @@ function drawZoom(card, angle) {
   };
   ctx.lineWidth = 0.9 * (window.devicePixelRatio || 1);
   ctx.strokeStyle = PAL.zedge;
-  const dots = [], outlined = [];
+  const dots = [];
   const cellList = rec.large ? patch.cells : null;
   const nIter = rec.large ? cellList.length : n;
   const regionOf = rec.large ? (i => patch.regions[i]) : (k => rec.regions[k]);
@@ -493,7 +512,6 @@ function drawZoom(card, angle) {
     const k = rec.large ? cellList[i] : i;
     const dot = P[3 * k] * c[0] + P[3 * k + 1] * c[1] + P[3 * k + 2] * c[2];
     if (dot < cosr) continue;
-    if (state.mode === "heat" && state.outline && rec.deg[k] !== 6) outlined.push(i);
     const reg = regionOf(i);
     ctx.beginPath();
     let q = proj(reg[0]);
@@ -508,29 +526,9 @@ function drawZoom(card, angle) {
     dots.push([w / 2 + px * scale * kk * (x * e[0] + y * e[1] + z * e[2]),
                h / 2 - px * scale * kk * (x * nn[0] + y * nn[1] + z * nn[2])]);
   }
-  strokeDefects(ctx, rec, outlined, proj, 2.6 * (window.devicePixelRatio || 1), patch);
   ctx.fillStyle = "#111";
   const r = Math.max(0.8, 1.8 / Math.sqrt(state.zoomScale)) * (window.devicePixelRatio || 1);
   dots.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); });
-}
-
-// Red (5 neighbors) / blue (7) / darker (4, 8+) outlines over the heat map.
-function strokeDefects(ctx, rec, cells, proj, lw, patch) {
-  ctx.save();
-  ctx.lineWidth = lw;
-  ctx.lineJoin = "round";
-  for (const i of cells) {
-    const k = patch ? patch.cells[i] : i;
-    const reg = patch ? patch.regions[i] : rec.regions[k];
-    ctx.beginPath();
-    let q = proj(reg[0]);
-    ctx.moveTo(q[0], q[1]);
-    for (let j = 1; j < reg.length; j++) { q = proj(reg[j]); ctx.lineTo(q[0], q[1]); }
-    ctx.closePath();
-    ctx.strokeStyle = defectColor(rec.deg[k]);
-    ctx.stroke();
-  }
-  ctx.restore();
 }
 
 function drawAll() {
@@ -544,19 +542,35 @@ function drawAll() {
 // -------------------------------------------------------------- legend ---
 function updateLegend() {
   const el = document.getElementById("legend");
-  const chips = (fill) => [[5, "5 neighbors (pentagon)"], [7, "7 neighbors (heptagon)"], [4, "4"], [8, "8+"]]
-    .map(([d, t]) => `<span class="chip"><span style="${fill ? `background:${DEFECT[d]}` : `border:2.5px solid ${DEFECT[d]};background:transparent`}"></span>${t}</span>`).join("");
+  const chips = [[5, "5 neighbors (pentagon)"], [7, "7 neighbors (heptagon)"], [4, "4"], [8, "8+"]]
+    .map(([d, t]) => `<span class="chip"><span style="background:${DEFECT[d]}"></span>${t}</span>`).join("");
+  const tip = `title="Colors: ${PAL.name}. Click for the next scheme."`;
+  const hint = '<span class="cyclehint">click for other colors</span>';
   if (state.mode === "defect") {
-    el.innerHTML = `<div class="chips">${chips(true)}<span class="chip"><span style="background:${DEFECT[6]}"></span>6 (hexagon)</span></div>`;
+    el.innerHTML = `<div class="chips cycle" ${tip}>${chips}<span class="chip"><span style="background:${DEFECT[6]}"></span>6 (hexagon)</span>${hint}</div>`;
   } else {
     const vmax = VMAX[state.metric] * 100;
     const stops = YLORBR.map((c, i) => `${c} ${(100 * i / (YLORBR.length - 1)).toFixed(1)}%`).join(",");
     const ticks = [0, 0.25, 0.5, 0.75, 1].map(f => (f === 1 ? "\u2265" : "") + (f * vmax).toFixed(f === 0 ? 0 : 1) + "%");
-    el.innerHTML = `<div class="colorbar"><div class="bar" style="background:linear-gradient(to right,${stops})"></div>` +
+    el.innerHTML = `<div class="colorbar"><div class="bar cycle" ${tip} style="background:linear-gradient(to right,${stops})"></div>` +
       `<div class="lbl">${ticks.map(t => `<span>${t}</span>`).join("")}</div>` +
-      `<div style="text-align:center;margin-top:2px">${state.metric === "aniso" ? "cell anisotropy (0 for a regular hexagon)" : "perimeter excess P/P<sub>hex</sub> \u2212 1"}</div></div>` +
-      (state.outline ? `<div class="chips">Outlined: ${chips(false)}</div>` : "");
+      `<div style="text-align:center;margin-top:2px">${state.metric === "aniso" ? "cell anisotropy (0 for a regular hexagon)" : "perimeter excess P/P<sub>hex</sub> \u2212 1"} &middot; ${hint.replace("click", "click bar")}</div></div>`;
   }
+}
+
+function cyclePalette() {
+  PAL_KEY = PALETTE_ORDER[(PALETTE_ORDER.indexOf(PAL_KEY) + 1) % PALETTE_ORDER.length];
+  PAL = PALETTES[PAL_KEY];
+  YLORBR = PAL.stops;
+  YLORBR_RGB = YLORBR.map(hex2rgb);
+  setDefectColors();
+  for (let i = 0; i < HEAT_LEVELS; i++) HEAT_STR[i] = heatColor(i / (HEAT_LEVELS - 1));
+  const qs = new URLSearchParams(location.search);
+  if (PAL_KEY === "E") qs.delete("palette"); else qs.set("palette", PAL_KEY);
+  history.replaceState(null, "", location.pathname + (qs.toString() ? "?" + qs : "") + location.hash);
+  updateLegend();
+  updateStats();
+  drawAll();
 }
 
 // ------------------------------------------------------------ controls ---
@@ -567,12 +581,16 @@ function previewN(tIdx) {
   state.tIdx = tIdx;
   if (state.manifest.targets[tIdx] > 10000) state.zoomScale = Math.min(state.zoomScale, 1.6);
   updateZoomLabel();
+  const d = dataIdx(tIdx);
   state.cards.forEach(card => {
-    const f = fileOf(card, tIdx);
+    const f = fileOf(card, tIdx), fd = fileOf(card, d);
     card.nval.textContent = "N = " + f.n.toLocaleString();
     card.E = f.energy;
     card.gap = f.excess;
-    card.el.classList.toggle("loading", !(card.rec && card.rec.n === f.n));
+    card.method = f.method || "exact";
+    card.el.classList.toggle("loading", !(card.rec && card.rec.n === fd.n));
+    card.el.classList.toggle("beyond", d !== tIdx);
+    card.pnote.innerHTML = d !== tIdx ? `picture and cell statistics: N = ${fd.n.toLocaleString()}${FN(6)}` : "";
   });
   updateEnergies();
 }
@@ -620,8 +638,6 @@ function setView(view) {
   state.mode = view === "defect" ? "defect" : "heat";
   if (view !== "defect") state.metric = view;
   setSeg(document.getElementById("view"), "view", view);
-  document.getElementById("outline").disabled = view === "defect";
-  document.getElementById("outline-wrap").classList.toggle("disabled", view === "defect");
   updateLegend();
   updateStats();
   drawAll();
@@ -684,7 +700,7 @@ async function main() {
   setupFootnotes();
   makeCards();
   const ticks = document.getElementById("nticks");
-  const fmt = v => v >= 1000 ? (v / 1000) + "k" : String(v);
+  const fmt = v => v >= 1e6 ? (v / 1e6) + "M" : v >= 1000 ? (v / 1000) + "k" : String(v);
   ticks.innerHTML = state.manifest.targets.map(t => `<span>${fmt(t)}</span>`).join("");
   const slider = document.getElementById("nslider");
   slider.max = String(state.manifest.targets.length - 1);
@@ -699,11 +715,11 @@ async function main() {
     settle = setTimeout(() => setN(i), 250);
   });
   slider.addEventListener("change", () => { clearTimeout(settle); setN(Number(slider.value)); });
+  document.getElementById("legend").addEventListener("click", ev => {
+    if (ev.target.closest(".cycle")) cyclePalette();
+  });
   document.querySelectorAll("#view button").forEach(b =>
     b.addEventListener("click", () => setView(b.dataset.view)));
-  document.getElementById("outline").addEventListener("change", ev => {
-    state.outline = ev.target.checked; updateLegend(); drawAll();
-  });
   document.querySelectorAll("#speed button").forEach(b =>
     b.addEventListener("click", () => setSpeed(b.dataset.speed)));
   const applyZoom = z => {
@@ -805,7 +821,6 @@ async function main() {
   const qs = new URLSearchParams(location.search);
   let view = qs.get("view") || (qs.get("mode") === "defect" ? "defect" : qs.get("metric")) || "perim";
   if (!["perim", "aniso", "defect"].includes(view)) view = "perim";
-  if (qs.get("outline") === "0") { state.outline = false; document.getElementById("outline").checked = false; }
   if (qs.has("n")) slider.value = qs.get("n");
   if (qs.has("speed")) state.speed = qs.get("speed");
   if (qs.has("elev")) setElev(Number(qs.get("elev")) * Math.PI / 180);
