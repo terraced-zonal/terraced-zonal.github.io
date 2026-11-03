@@ -32,6 +32,7 @@ const shade = (h, f) => "#" + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, 
 // Color by number of sides; <= 4 share one shade and 8+ another, matching the legend.
 const DEFECT = { 3: shade(PAL.pent, 0.7), 4: shade(PAL.pent, 0.7), 5: PAL.pent, 6: "#f3efe6",
                  7: PAL.hept, 8: shade(PAL.hept, 0.7), 9: shade(PAL.hept, 0.7) };
+const SPLAT_MIN_N = 5000;                   // spheres with more points are drawn as pixel splats
 const BOX_COLOR = "rgba(90,90,90,0.45)";   // zoom box on the sphere: gray, nearly transparent
 
 // Camera basis: view direction d, screen right r, screen up u (right-handed).
@@ -42,7 +43,7 @@ const U = [-Math.sin(ELEV), 0, Math.cos(ELEV)];
 
 const state = { mode: "heat", metric: "perim", outline: true, tIdx: 5, speed: "slow",
                 angle: 0, elev: ELEV, dragging: false, zoomScale: 1,
-                manifest: null, cache: {}, cards: [] };
+                manifest: null, cache: {}, loaded: new Set(), loadSeq: 0, cards: [] };
 
 function setElev(elev) {
   state.elev = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, elev));
@@ -67,28 +68,35 @@ function defectColor(deg) {
 }
 
 // ---------------------------------------------------------------- data ---
-async function loadSet(tIdx) {
-  const target = state.manifest.targets[tIdx];
-  const recs = await Promise.all(state.manifest.constructions.map(async c => {
-    const file = c.files[String(target)].file;
+// The cache holds promises, so a file requested twice (e.g. while the slider
+// moves back and forth) is fetched once.
+async function fetchRecord(file) {
+  const r = await fetch("data/" + file);
+  const j = await r.json();
+  if (j.large) {
+    const bin = async (suffix, Type) => new Type(await (await fetch(`data/${j.bin}_${suffix}`)).arrayBuffer());
+    [j.pts, j.perim, j.aniso, j.deg] = await Promise.all([
+      bin("pts.f32", Float32Array), bin("perim.f32", Float32Array),
+      bin("aniso.f32", Float32Array), bin("deg.u8", Uint8Array)]);
+    j.band_verts = Float32Array.from(j.band_verts);
+  } else {
+    j.pts = Float32Array.from(j.pts);
+    j.verts = Float32Array.from(j.verts);
+  }
+  return j;
+}
+
+const filesFor = tIdx => state.manifest.constructions.map(c => c.files[String(state.manifest.targets[tIdx])].file);
+const isLoaded = tIdx => filesFor(tIdx).every(f => state.loaded.has(f));
+
+function loadSet(tIdx) {
+  return Promise.all(filesFor(tIdx).map(file => {
     if (!state.cache[file]) {
-      const r = await fetch("data/" + file);
-      const j = await r.json();
-      if (j.large) {
-        const bin = async (suffix, Type) => new Type(await (await fetch(`data/${j.bin}_${suffix}`)).arrayBuffer());
-        [j.pts, j.perim, j.aniso, j.deg] = await Promise.all([
-          bin("pts.f32", Float32Array), bin("perim.f32", Float32Array),
-          bin("aniso.f32", Float32Array), bin("deg.u8", Uint8Array)]);
-        j.band_verts = Float32Array.from(j.band_verts);
-      } else {
-        j.pts = Float32Array.from(j.pts);
-        j.verts = Float32Array.from(j.verts);
-      }
-      state.cache[file] = j;
+      state.cache[file] = fetchRecord(file).then(j => { state.loaded.add(file); return j; },
+                                                 err => { delete state.cache[file]; throw err; });
     }
     return state.cache[file];
   }));
-  return recs;
 }
 
 // --------------------------------------------------------------- cards ---
@@ -102,10 +110,11 @@ function makeCards() {
       `<div class="title">${c.name}</div>` +
       `<div class="family">${c.family} &middot; <span class="nval"></span></div>` +
       '<canvas class="sphere"></canvas><canvas class="zoom"></canvas>' +
-      '<div class="stats"></div>';
+      '<div class="stats"></div><div class="energy"></div>';
     row.appendChild(card);
     state.cards.push({ el: card, key: c.key, sphere: card.querySelector(".sphere"),
                        zoom: card.querySelector(".zoom"), stats: card.querySelector(".stats"),
+                       energy: card.querySelector(".energy"), files: c.files,
                        nval: card.querySelector(".nval"), rec: null });
   });
 }
@@ -122,16 +131,67 @@ function sizeCanvas(cv, aspect) {
   return [cv.width, cv.height];
 }
 
+// Heat-map colors are quantized to 256 precomputed strings (indistinguishable from
+// continuous), so cells can be batched by color and no string is built per cell.
+const HEAT_LEVELS = 256;
+const HEAT_STR = Array.from({ length: HEAT_LEVELS }, (_, i) => heatColor(i / (HEAT_LEVELS - 1)));
 function cellColor(rec, k) {
   if (state.mode === "defect") return defectColor(rec.deg[k]);
-  return heatColor(rec[state.metric][k] / VMAX[state.metric]);
+  const v = Math.max(0, Math.min(1, rec[state.metric][k] / VMAX[state.metric]));
+  return HEAT_STR[Math.round(v * (HEAT_LEVELS - 1))];
+}
+
+// ------------------------------------------------------------- energy ---
+// From data/manifest.json: the gap per point (E - E_BHS)/N above the BHS
+// asymptotic energy (the main number on each card, scientific notation with the
+// exponent shaded darker the smaller it is) and the exact single-counted energy
+// E = sum_{i<j} -log|x_i - x_j| (secondary line).
+const GAP_DIGITS = 4;                      // significant digits of (E - E_BHS)/N
+const E_DIGITS = 12;                       // significant digits of E
+const FN = n => `<sup class="fn" data-fn="${n}" tabindex="0" role="link" aria-label="note ${n}">${n}</sup>`;
+const fileOf = (card, tIdx) => card.files[String(state.manifest.targets[tIdx])];
+const exponentOf = x => Number(x.toExponential(GAP_DIGITS - 1).split("e")[1]);
+let EXP_LO = 0, EXP_HI = 0;               // gap exponent range over the whole manifest
+function initExponentRange() {
+  const exps = state.manifest.constructions.flatMap(c =>
+    Object.values(c.files).map(f => f.excess).filter(Number.isFinite).map(exponentOf));
+  EXP_LO = Math.min(...exps);
+  EXP_HI = Math.max(...exps);
+}
+function expGray(e) {                      // black (smallest gap exponent) to light gray (largest)
+  const t = EXP_HI > EXP_LO ? (e - EXP_LO) / (EXP_HI - EXP_LO) : 0;
+  const g = Math.round(0x9a * Math.max(0, Math.min(1, t)));
+  return `rgb(${g},${g},${g})`;
+}
+// Scientific notation with a proper minus sign and thin spaces every three digits.
+function fmtSci(x, digits, shade) {
+  const [m, e] = x.toExponential(digits - 1).split("e");
+  const exp = Number(e);
+  const [ip, fp = ""] = m.replace("-", "").split(".");
+  const grouped = fp.replace(/(\d{3})(?=\d)/g, "$1\u2009");
+  const sgn = v => (v < 0 ? "\u2212" : "");
+  return `${sgn(x)}${ip}${fp ? "." + grouped : ""}\u2009\u00d7\u200910` +
+    `<sup${shade ? ` class="exp" style="color:${expGray(exp)}"` : ""}>${sgn(exp)}${Math.abs(exp)}</sup>`;
+}
+
+function updateEnergies() {
+  const gaps = state.cards.map(c => c.gap).filter(Number.isFinite);
+  const best = gaps.length ? Math.min(...gaps) : NaN;
+  state.cards.forEach(card => {
+    if (!Number.isFinite(card.gap)) { card.energy.innerHTML = ""; return; }
+    const isBest = card.gap === best;
+    card.energy.classList.toggle("best", isBest);
+    card.energy.innerHTML =
+      `<div class="glbl">gap per point${FN(1)} (E &minus; E<sub>BHS</sub>)/N</div>` +
+      `<div class="gval">${fmtSci(card.gap, GAP_DIGITS, true)}${isBest ? ' <span class="low">lowest</span>' : ""}</div>` +
+      (Number.isFinite(card.E) ? `<div class="eraw">E = ${fmtSci(card.E, E_DIGITS, false)}</div>` : "");
+  });
 }
 
 function updateStats() {
   state.cards.forEach(card => {
     const rec = card.rec;
     if (!rec) return;
-    card.nval.textContent = "N = " + rec.n.toLocaleString();
     const s = rec.summary;
     if (state.mode === "defect") {
       const pct = 100 * (s.n5 + s.n7 + s.n_other) / rec.n;
@@ -180,8 +240,39 @@ function drawSphereLarge(card, angle, ctx, w, h, rad, cx, cy) {
   const img = ctx.createImageData(w, h);
   const buf = new Uint32Array(img.data.buffer);
   const ca = Math.cos(angle), sa = Math.sin(angle);
-  // Splat size: slightly larger than one cell so that the disc has no gaps.
-  const s = Math.max(2, Math.min(5, Math.ceil(rad * Math.sqrt(4 * Math.PI / n) * 1.25)));
+  const cellPx = rad * Math.sqrt(4 * Math.PI / n);  // cell diameter in device pixels
+  if (cellPx >= 3.5) {
+    // Cells span several pixels (N = 10k, or 30k on high-DPI screens): every pixel
+    // takes the color of the nearest projected point, i.e. a screen-space Voronoi
+    // diagram, which looks like the cells instead of square blocks.
+    if (!card._dist || card._dist.length !== w * h) card._dist = new Float32Array(w * h);
+    const dist = card._dist;
+    dist.fill(Infinity);
+    const r = Math.ceil(0.8 * cellPx), r2 = r * r, lim2 = rad * rad;
+    for (let k = 0; k < n; k++) {
+      const x = ca * P[3 * k] - sa * P[3 * k + 1], y = sa * P[3 * k] + ca * P[3 * k + 1], z = P[3 * k + 2];
+      if (x * D[0] + y * D[1] + z * D[2] <= 0.01) continue;
+      const fx = cx + rad * (x * R[0] + y * R[1] + z * R[2]);
+      const fy = cy - rad * (x * U[0] + y * U[1] + z * U[2]);
+      const c = colors[k];
+      const x0 = Math.max(0, Math.round(fx) - r), x1 = Math.min(w - 1, Math.round(fx) + r);
+      const y0 = Math.max(0, Math.round(fy) - r), y1 = Math.min(h - 1, Math.round(fy) + r);
+      for (let yy = y0; yy <= y1; yy++) {
+        const ey = yy + 0.5 - fy, ey2 = ey * ey, cy2 = (yy + 0.5 - cy) * (yy + 0.5 - cy), row = yy * w;
+        for (let xx = x0; xx <= x1; xx++) {
+          const ex = xx + 0.5 - fx, d2 = ex * ex + ey2;
+          if (d2 > r2 || d2 >= dist[row + xx]) continue;
+          if ((xx + 0.5 - cx) * (xx + 0.5 - cx) + cy2 > lim2) continue;  // stay inside the limb
+          dist[row + xx] = d2;
+          buf[row + xx] = c;
+        }
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return;
+  }
+  // Sub-cell scale: square splats slightly larger than one cell so that the disc has no gaps.
+  const s = Math.max(2, Math.min(12, Math.ceil(rad * Math.sqrt(4 * Math.PI / n) * 1.25)));
   const half = Math.floor(s / 2);
   // Draw back to front is unnecessary (only the front hemisphere is drawn), but
   // defect points are written last so that they stay visible at sub-pixel scale.
@@ -213,7 +304,7 @@ function drawSphere(card, angle) {
   const ctx = cv.getContext("2d");
   ctx.clearRect(0, 0, w, h);
   const rad = 0.46 * Math.min(w, h), cx = w / 2, cy = h / 2;
-  if (rec.large) {
+  if (rec.large || rec.n > SPLAT_MIN_N) {  // pixel splats: much faster than polygons at this density
     drawSphereLarge(card, angle, ctx, w, h, rad, cx, cy);
     drawSphereOverlay(ctx, rec.n, rad, cx, cy);
     return;
@@ -469,12 +560,32 @@ function updateLegend() {
 }
 
 // ------------------------------------------------------------ controls ---
-async function setN(tIdx) {
+// Instant part of an N change: N labels and energies come from the manifest, so
+// they follow the slider while it moves; cards whose cell data is not loaded yet
+// are dimmed until it arrives.
+function previewN(tIdx) {
   state.tIdx = tIdx;
   if (state.manifest.targets[tIdx] > 10000) state.zoomScale = Math.min(state.zoomScale, 1.6);
   updateZoomLabel();
+  state.cards.forEach(card => {
+    const f = fileOf(card, tIdx);
+    card.nval.textContent = "N = " + f.n.toLocaleString();
+    card.E = f.energy;
+    card.gap = f.excess;
+    card.el.classList.toggle("loading", !(card.rec && card.rec.n === f.n));
+  });
+  updateEnergies();
+}
+
+async function setN(tIdx) {
+  previewN(tIdx);
+  const seq = ++state.loadSeq;
   const recs = await loadSet(tIdx);
-  state.cards.forEach((card, i) => { card.rec = recs[i]; });
+  if (seq !== state.loadSeq) return;  // a later N was requested meanwhile
+  state.cards.forEach((card, i) => {
+    card.rec = recs[i];
+    card.el.classList.remove("loading");
+  });
   updateStats();
   drawAll();
 }
@@ -516,15 +627,78 @@ function setView(view) {
   drawAll();
 }
 
+// Superscript note markers (sup.fn[data-fn]): hover or focus previews the note,
+// click or Enter scrolls to it in the footer. Handled in the capture phase so a
+// marker inside a toggle button does not also switch the view.
+function setupFootnotes() {
+  const tip = document.createElement("div");
+  tip.className = "fntip";
+  document.body.appendChild(tip);
+  const noteOf = el => document.getElementById("fn" + el.dataset.fn);
+  const show = el => {
+    const note = noteOf(el);
+    if (!note) return;
+    tip.innerHTML = note.innerHTML;
+    tip.style.display = "block";
+    const r = el.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.left - 16, document.documentElement.clientWidth - tip.offsetWidth - 8));
+    let top = r.bottom + 6;
+    if (top + tip.offsetHeight > window.innerHeight - 8) top = Math.max(8, r.top - tip.offsetHeight - 6);
+    tip.style.left = left + window.scrollX + "px";
+    tip.style.top = top + window.scrollY + "px";
+  };
+  const hide = () => { tip.style.display = "none"; };
+  const go = el => {
+    const note = noteOf(el);
+    if (!note) return;
+    hide();
+    note.scrollIntoView({ behavior: "smooth", block: "center" });
+    note.classList.add("flash");
+    setTimeout(() => note.classList.remove("flash"), 1600);
+  };
+  const marker = ev => ev.target.closest && ev.target.closest("sup.fn");
+  document.addEventListener("mouseover", ev => { const el = marker(ev); if (el) show(el); });
+  document.addEventListener("mouseout", ev => { if (marker(ev)) hide(); });
+  document.addEventListener("focusin", ev => { const el = marker(ev); if (el) show(el); });
+  document.addEventListener("focusout", ev => { if (marker(ev)) hide(); });
+  document.addEventListener("click", ev => {
+    const el = marker(ev);
+    if (!el) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    go(el);
+  }, true);
+  document.addEventListener("keydown", ev => {
+    const el = marker(ev);
+    if (el && (ev.key === "Enter" || ev.key === " ")) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      go(el);
+    }
+  }, true);
+}
+
 async function main() {
   state.manifest = await (await fetch("data/manifest.json")).json();
+  initExponentRange();
+  setupFootnotes();
   makeCards();
   const ticks = document.getElementById("nticks");
   const fmt = v => v >= 1000 ? (v / 1000) + "k" : String(v);
   ticks.innerHTML = state.manifest.targets.map(t => `<span>${fmt(t)}</span>`).join("");
   const slider = document.getElementById("nslider");
   slider.max = String(state.manifest.targets.length - 1);
-  slider.addEventListener("input", () => setN(Number(slider.value)));
+  // While dragging, labels and energies update at once; cell data loads only
+  // once the slider rests (or immediately if it is already cached).
+  let settle = null;
+  slider.addEventListener("input", () => {
+    const i = Number(slider.value);
+    clearTimeout(settle);
+    if (isLoaded(i)) { setN(i); return; }
+    previewN(i);
+    settle = setTimeout(() => setN(i), 250);
+  });
+  slider.addEventListener("change", () => { clearTimeout(settle); setN(Number(slider.value)); });
   document.querySelectorAll("#view button").forEach(b =>
     b.addEventListener("click", () => setView(b.dataset.view)));
   document.getElementById("outline").addEventListener("change", ev => {

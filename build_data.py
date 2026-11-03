@@ -11,23 +11,32 @@ diagram of the point set and, for each cell,
                regular spherical hexagon of the same area (paper, Figure 1).
 
 Writes data/<key>_<target>.json and data/manifest.json next to this script.
+The manifest also records, for every point set, its exact logarithmic energy
+in the single-counted convention E = sum_{i<j} -log ||x_i - x_j|| (each pair
+counted once; half of the double-counted sum over i != j) and its gap per
+point (E - E_BHS) / N above the Brauchart-Hardin-Saff asymptotic energy.
 
 Usage:
   PYTHONPATH=src python3 web/terraced_zonal_demo/build_data.py
+  PYTHONPATH=src python3 web/terraced_zonal_demo/build_data.py --energies-only
+      (recomputes only the energies and gaps in data/manifest.json)
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import os
 
+import mpmath
 import numpy as np
 from scipy.spatial import SphericalVoronoi
 
 from smales7.constructions import (
     equal_area_icosahedral, fibonacci_lattice, hammersley, terraced_zonal_dp,
     zonal_equal_area)
+from smales7.evaluators import bhs_residual, exact_centered_sum
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "data")
@@ -86,15 +95,51 @@ def cell_metrics(points, sv):
   return deg, perim, aniso
 
 
+def point_set(mod, target):
+  n = int(mod.allowed_n(target))
+  pts = np.asarray(mod.construct(n), dtype=np.float64)
+  pts /= np.linalg.norm(pts, axis=1, keepdims=True)
+  return n, pts
+
+
+def energies(pts):
+  """Exact energy E = sum_{i<j} -log ||x_i - x_j|| and gap per point (E - E_BHS) / N.
+
+  Every pair is counted once. The evaluator returns the centered sum
+  S = E - MU N (N - 1) / 2 with MU = 1/2 - log 2; the N^2 term is added back,
+  and E_BHS = MU N^2 / 2 - N log(N) / 4 + C_BHS N / 2 subtracted, in mpmath.
+  """
+  s = exact_centered_sum(pts)
+  n = len(pts)
+  with mpmath.workdps(40):
+    e = mpmath.mpf(s) + (mpmath.mpf(1) / 2 - mpmath.log(2)) * n * (n - 1) / 2
+  return {"energy": float(e), "excess": bhs_residual(s, n) / n}
+
+
+def energies_only():
+  """Recomputes the energies in an existing manifest without touching the cell data."""
+  path = os.path.join(OUT, "manifest.json")
+  with open(path) as f:
+    manifest = json.load(f)
+  mods = {key: mod for key, _, _, mod in CONSTRUCTIONS}
+  for entry in manifest["constructions"]:
+    for target, info in entry["files"].items():
+      n, pts = point_set(mods[entry["key"]], int(target))
+      assert n == info["n"], (entry["key"], target, n, info["n"])
+      info.update(energies(pts))
+      print(f"{entry['name']:18s} N={n:6d}  E = {info['energy']:.15e}  "
+            f"(E - E_BHS)/N = {info['excess']:.6e}", flush=True)
+  with open(path, "w") as f:
+    json.dump(manifest, f, indent=1)
+
+
 def main():
   os.makedirs(OUT, exist_ok=True)
   manifest = {"targets": TARGETS, "constructions": []}
   for key, name, family, mod in CONSTRUCTIONS:
     entry = {"key": key, "name": name, "family": family, "files": {}}
     for target in TARGETS:
-      n = int(mod.allowed_n(target))
-      pts = np.asarray(mod.construct(n), dtype=np.float64)
-      pts /= np.linalg.norm(pts, axis=1, keepdims=True)
+      n, pts = point_set(mod, target)
       sv = SphericalVoronoi(pts)
       sv.sort_vertices_of_regions()
       deg, perim, aniso = cell_metrics(pts, sv)
@@ -141,7 +186,7 @@ def main():
         }
       with open(os.path.join(OUT, fname), "w") as f:
         json.dump(rec, f, separators=(",", ":"))
-      entry["files"][str(target)] = {"file": fname, "n": n}
+      entry["files"][str(target)] = {"file": fname, "n": n, **energies(pts)}
       s = summary
       print(f"{name:18s} N={n:5d}  median aniso {100*s['median_aniso']:5.2f}%  "
             f"perim {100*s['median_perim']:5.2f}%  5:{s['n5']} 7:{s['n7']} other:{s['n_other']}")
@@ -151,4 +196,10 @@ def main():
 
 
 if __name__ == "__main__":
-  main()
+  parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+  parser.add_argument("--energies-only", action="store_true",
+                      help="only recompute the energies in data/manifest.json")
+  if parser.parse_args().energies_only:
+    energies_only()
+  else:
+    main()
