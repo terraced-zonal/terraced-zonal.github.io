@@ -55,9 +55,32 @@ from smales7.evaluators.ring import rings_terraced_zonal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "data")
-# Slider positions: the R10 preferred numbers (10 per decade, roughly log-spaced) from 10 to 1e5.
+# Slider positions: the R10 preferred numbers (10 per decade, roughly log-spaced) from 10 to
+# 1e5, plus one stop in each gap between them, alternately an EqAreaIco size N = 10T + 2 and an
+# odd N (Fibonacci lattice), nearest the gap's geometric middle. The Fibonacci lattice and
+# EqAreaIco only exist at those N (odd N is never 10T + 2), so every stop shows at least one
+# of them as N/A, while the other constructions take every N.
 R10 = [1.0, 1.25, 1.6, 2.0, 2.5, 3.15, 4.0, 5.0, 6.3, 8.0]
-TARGETS = sorted({int(math.floor(m * 10 ** e + 0.5)) for e in range(1, 5) for m in R10} | {100_000})
+ROUND_TARGETS = sorted({int(math.floor(m * 10 ** e + 0.5)) for e in range(1, 5) for m in R10} | {100_000})
+NA_REASON = {"fib": "odd N only", "eqareaico": "N = 10T + 2 only"}  # constructions defined only at some N
+
+
+def _targets():
+  ico = sorted({10 * (m * m + m * n + n * n) + 2 for m in range(1, 101) for n in range(m + 1)})
+  out, prefer_ico = set(ROUND_TARGETS), True
+  for a, b in zip(ROUND_TARGETS, ROUND_TARGETS[1:]):
+    mid = math.sqrt(a * b)
+    kinds = {"ico": [v for v in ico if a < v < b],
+             "odd": [v for v in range(a + 1, b) if v % 2 == 1]}
+    for kind in (("ico", "odd") if prefer_ico else ("odd", "ico")):
+      if kinds[kind]:
+        out.add(min(kinds[kind], key=lambda v: (abs(math.log(v / mid)), v)))
+        break
+    prefer_ico = not prefer_ico
+  return sorted(out)
+
+
+TARGETS = _targets()
 HIGH_TARGETS = [1_000_000, 10_000_000, 100_000_000]  # energies only
 EXACT_MAX = 1_000_000  # largest N for the exact O(N^2) pair sum (~12 min on 12 cores at 1e6)
 EWALD_C = 1.5  # as in smales7.large_n_benchmark
@@ -270,9 +293,12 @@ def main(only=None):
     entry = {"key": key, "name": name, "family": family, "files": {}}
     if key in REFERENCE_KEYS:
       entry["reference"] = True
-    by_n = {}  # several targets can share one admissible N (e.g. EqAreaIco at small N)
+    by_n = {}
     for target in TARGETS:
       n = int(mod.allowed_n(target))
+      if key in NA_REASON and n != target:  # not defined at this N: the card shows N/A
+        entry["files"][str(target)] = {"na": NA_REASON[key]}
+        continue
       if n in by_n:
         entry["files"][str(target)] = dict(by_n[n])
         continue

@@ -1,45 +1,85 @@
 {
  "targets": [
   10,
+  12,
   13,
+  15,
   16,
+  17,
   20,
+  23,
   25,
+  29,
   32,
+  35,
   40,
+  42,
   50,
+  57,
   63,
+  72,
   80,
+  89,
   100,
+  122,
   125,
+  141,
   160,
+  192,
   200,
+  223,
   250,
+  282,
   315,
+  355,
   400,
+  432,
   500,
+  561,
   630,
+  732,
   800,
+  895,
   1000,
+  1122,
   1250,
+  1415,
   1600,
+  1812,
   2000,
+  2237,
   2500,
+  2792,
   3150,
+  3549,
   4000,
+  4482,
   5000,
+  5613,
   6300,
+  7092,
   8000,
+  8945,
   10000,
+  11172,
   12500,
+  14143,
   16000,
+  17892,
   20000,
+  22361,
   25000,
+  28092,
   31500,
+  35497,
   40000,
+  44682,
   50000,
+  56125,
   63000,
+  70992,
   80000,
+  89443,
   100000
  ],
  "constructions": [
@@ -49,11 +89,10 @@
    "family": "Spiral (Swinbank\u2013Purser, odd N)",
    "files": {
     "10": {
-     "file": "fib_10.json",
-     "n": 9,
-     "energy": -12.77137051382337,
-     "excess": 0.027229941122908316,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "12": {
+     "na": "odd N only"
     },
     "13": {
      "file": "fib_13.json",
@@ -62,18 +101,31 @@
      "excess": 0.020883265855217634,
      "method": "exact"
     },
-    "16": {
-     "file": "fib_16.json",
+    "15": {
+     "file": "fib_15.json",
      "n": 15,
      "energy": -32.008292558290336,
      "excess": 0.019532886394149455,
      "method": "exact"
     },
+    "16": {
+     "na": "odd N only"
+    },
+    "17": {
+     "file": "fib_17.json",
+     "n": 17,
+     "energy": -40.113643853758944,
+     "excess": 0.018230914200641712,
+     "method": "exact"
+    },
     "20": {
-     "file": "fib_20.json",
-     "n": 19,
-     "energy": -49.055958238237395,
-     "excess": 0.01691807372818723,
+     "na": "odd N only"
+    },
+    "23": {
+     "file": "fib_23.json",
+     "n": 23,
+     "energy": -69.40115549214376,
+     "excess": 0.015427239756669731,
      "method": "exact"
     },
     "25": {
@@ -83,25 +135,37 @@
      "excess": 0.014801341857550025,
      "method": "exact"
     },
+    "29": {
+     "file": "fib_29.json",
+     "n": 29,
+     "energy": -106.04296742341211,
+     "excess": 0.01360667900434562,
+     "method": "exact"
+    },
     "32": {
-     "file": "fib_32.json",
-     "n": 31,
-     "energy": -119.87158170273584,
-     "excess": 0.013255536054849894,
+     "na": "odd N only"
+    },
+    "35": {
+     "file": "fib_35.json",
+     "n": 35,
+     "energy": -149.9451638960977,
+     "excess": 0.012567787754586597,
      "method": "exact"
     },
     "40": {
-     "file": "fib_40.json",
-     "n": 39,
-     "energy": -183.22336744563708,
-     "excess": 0.01202802221439838,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "42": {
+     "na": "odd N only"
     },
     "50": {
-     "file": "fib_50.json",
-     "n": 49,
-     "energy": -280.36907360059126,
-     "excess": 0.011045822134517887,
+     "na": "odd N only"
+    },
+    "57": {
+     "file": "fib_57.json",
+     "n": 57,
+     "energy": -372.3734927609912,
+     "excess": 0.010391821336297803,
      "method": "exact"
     },
     "63": {
@@ -111,19 +175,24 @@
      "excess": 0.00995117768371146,
      "method": "exact"
     },
+    "72": {
+     "na": "odd N only"
+    },
     "80": {
-     "file": "fib_80.json",
-     "n": 79,
-     "energy": -690.4897048939064,
-     "excess": 0.009102236391020238,
+     "na": "odd N only"
+    },
+    "89": {
+     "file": "fib_89.json",
+     "n": 89,
+     "energy": -866.5280820075565,
+     "excess": 0.008740695467730436,
      "method": "exact"
     },
     "100": {
-     "file": "fib_100.json",
-     "n": 99,
-     "energy": -1062.160674458209,
-     "excess": 0.008472351124565024,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "122": {
+     "na": "odd N only"
     },
     "125": {
      "file": "fib_125.json",
@@ -132,26 +201,34 @@
      "excess": 0.007972339476524848,
      "method": "exact"
     },
-    "160": {
-     "file": "fib_160.json",
-     "n": 159,
-     "energy": -2646.1962108185344,
-     "excess": 0.00748609327489581,
+    "141": {
+     "file": "fib_141.json",
+     "n": 141,
+     "energy": -2097.254032436942,
+     "excess": 0.007726780521518091,
      "method": "exact"
     },
+    "160": {
+     "na": "odd N only"
+    },
+    "192": {
+     "na": "odd N only"
+    },
     "200": {
-     "file": "fib_200.json",
-     "n": 199,
-     "energy": -4091.87742107821,
-     "excess": 0.007075228496975492,
+     "na": "odd N only"
+    },
+    "223": {
+     "file": "fib_223.json",
+     "n": 223,
+     "energy": -5108.61549430859,
+     "excess": 0.006916567193987928,
      "method": "exact"
     },
     "250": {
-     "file": "fib_250.json",
-     "n": 249,
-     "energy": -6336.350615558713,
-     "excess": 0.0067986291576402035,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "282": {
+     "na": "odd N only"
     },
     "315": {
      "file": "fib_315.json",
@@ -160,180 +237,207 @@
      "excess": 0.006610998983507261,
      "method": "exact"
     },
-    "400": {
-     "file": "fib_400.json",
-     "n": 399,
-     "energy": -15980.552266315408,
-     "excess": 0.006396089016265113,
+    "355": {
+     "file": "fib_355.json",
+     "n": 355,
+     "energy": -12699.395768757908,
+     "excess": 0.006510821743778586,
      "method": "exact"
     },
+    "400": {
+     "na": "odd N only"
+    },
+    "432": {
+     "na": "odd N only"
+    },
     "500": {
-     "file": "fib_500.json",
-     "n": 499,
-     "energy": -24832.738681644227,
-     "excess": 0.0061683480713896266,
+     "na": "odd N only"
+    },
+    "561": {
+     "file": "fib_561.json",
+     "n": 561,
+     "energy": -31293.669062001634,
+     "excess": 0.006075738926597342,
      "method": "exact"
     },
     "630": {
-     "file": "fib_630.json",
-     "n": 629,
-     "energy": -39235.5152794289,
-     "excess": 0.006015995310971325,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "732": {
+     "na": "odd N only"
     },
     "800": {
-     "file": "fib_800.json",
-     "n": 799,
-     "energy": -63005.13517615199,
-     "excess": 0.005953817790404438,
+     "na": "odd N only"
+    },
+    "895": {
+     "file": "fib_895.json",
+     "n": 895,
+     "energy": -78898.23360628478,
+     "excess": 0.005920925873170819,
      "method": "exact"
     },
     "1000": {
-     "file": "fib_1000.json",
-     "n": 999,
-     "energy": -98127.40985190806,
-     "excess": 0.005872549431064527,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "1122": {
+     "na": "odd N only"
     },
     "1250": {
-     "file": "fib_1250.json",
-     "n": 1249,
-     "energy": -152908.82323877045,
-     "excess": 0.005742949800663082,
+     "na": "odd N only"
+    },
+    "1415": {
+     "file": "fib_1415.json",
+     "n": 1415,
+     "energy": -195959.76918887754,
+     "excess": 0.005684709719434605,
      "method": "exact"
     },
     "1600": {
-     "file": "fib_1600.json",
-     "n": 1599,
-     "energy": -249903.87377156763,
-     "excess": 0.005656080590586497,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "1812": {
+     "na": "odd N only"
     },
     "2000": {
-     "file": "fib_2000.json",
-     "n": 1999,
-     "energy": -389750.72629055183,
-     "excess": 0.005660635701193419,
+     "na": "odd N only"
+    },
+    "2237": {
+     "file": "fib_2237.json",
+     "n": 2237,
+     "energy": -487633.52887243195,
+     "excess": 0.005662328610226566,
      "method": "exact"
     },
     "2500": {
-     "file": "fib_2500.json",
-     "n": 2499,
-     "energy": -608045.3586691888,
-     "excess": 0.005646589294376759,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "2792": {
+     "na": "odd N only"
     },
     "3150": {
-     "file": "fib_3150.json",
-     "n": 3149,
-     "energy": -964054.3417987869,
-     "excess": 0.005561837333551551,
+     "na": "odd N only"
+    },
+    "3549": {
+     "file": "fib_3549.json",
+     "n": 3549,
+     "energy": -1223714.9370074267,
+     "excess": 0.005518557294639446,
      "method": "exact"
     },
     "4000": {
-     "file": "fib_4000.json",
-     "n": 3999,
-     "energy": -1552785.877954356,
-     "excess": 0.005497209986516771,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "4482": {
+     "na": "odd N only"
     },
     "5000": {
-     "file": "fib_5000.json",
-     "n": 4999,
-     "energy": -2424129.625967014,
-     "excess": 0.0055189795504896,
+     "na": "odd N only"
+    },
+    "5613": {
+     "file": "fib_5613.json",
+     "n": 5613,
+     "energy": -3054864.234666951,
+     "excess": 0.005537515723151026,
      "method": "exact"
     },
     "6300": {
-     "file": "fib_6300.json",
-     "n": 6299,
-     "energy": -3845705.442104272,
-     "excess": 0.0055401702550721245,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "7092": {
+     "na": "odd N only"
     },
     "8000": {
-     "file": "fib_8000.json",
-     "n": 7999,
-     "energy": -6197315.135411658,
-     "excess": 0.005482174092707122,
+     "na": "odd N only"
+    },
+    "8945": {
+     "file": "fib_8945.json",
+     "n": 8945,
+     "energy": -7747692.3659807695,
+     "excess": 0.00544722864460891,
      "method": "exact"
     },
     "10000": {
-     "file": "fib_10000.json",
-     "n": 9999,
-     "energy": -9678674.682986954,
-     "excess": 0.005427228494342631,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "11172": {
+     "na": "odd N only"
     },
     "12500": {
-     "file": "fib_12500.json",
-     "n": 12499,
-     "energy": -15116965.656199995,
-     "excess": 0.005449725167431291,
+     "na": "odd N only"
+    },
+    "14143": {
+     "file": "fib_14143.json",
+     "n": 14143,
+     "energy": -19351185.991760533,
+     "excess": 0.005478293104684232,
      "method": "exact"
     },
     "16000": {
-     "file": "fib_16000.json",
-     "n": 15999,
-     "energy": -24758824.488136027,
-     "excess": 0.005493204900306446,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "17892": {
+     "na": "odd N only"
     },
     "20000": {
-     "file": "fib_20000.json",
-     "n": 19999,
-     "energy": -38675534.84600037,
-     "excess": 0.005458077649072836,
+     "na": "odd N only"
+    },
+    "22361": {
+     "file": "fib_22361.json",
+     "n": 22361,
+     "energy": -48344665.32696045,
+     "excess": 0.005424801683693029,
      "method": "exact"
     },
     "25000": {
-     "file": "fib_25000.json",
-     "n": 24999,
-     "energy": -60417514.0354768,
-     "excess": 0.005400528866508264,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "28092": {
+     "na": "odd N only"
     },
     "31500": {
-     "file": "fib_31500.json",
-     "n": 31499,
-     "energy": -95901330.50016311,
-     "excess": 0.005414666801669399,
+     "na": "odd N only"
+    },
+    "35497": {
+     "file": "fib_35497.json",
+     "n": 35497,
+     "energy": -121780068.79634006,
+     "excess": 0.005445024393281579,
      "method": "exact"
     },
     "40000": {
-     "file": "fib_40000.json",
-     "n": 39999,
-     "energy": -154616875.447395,
-     "excess": 0.005468546315381097,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "44682": {
+     "na": "odd N only"
     },
     "50000": {
-     "file": "fib_50000.json",
-     "n": 49999,
-     "energy": -241560680.172958,
-     "excess": 0.0054529681239644376,
+     "na": "odd N only"
+    },
+    "56125": {
+     "file": "fib_56125.json",
+     "n": 56125,
+     "energy": -304363010.94991463,
+     "excess": 0.005421117817369532,
      "method": "exact"
     },
     "63000": {
-     "file": "fib_63000.json",
-     "n": 62999,
-     "energy": -383463871.96112615,
-     "excess": 0.0053926006887892106,
-     "method": "exact"
+     "na": "odd N only"
+    },
+    "70992": {
+     "na": "odd N only"
     },
     "80000": {
-     "file": "fib_80000.json",
-     "n": 79999,
-     "energy": -618283111.130912,
-     "excess": 0.00539673328629144,
+     "na": "odd N only"
+    },
+    "89443": {
+     "file": "fib_89443.json",
+     "n": 89443,
+     "energy": -772850519.3957531,
+     "excess": 0.005424826364566823,
      "method": "exact"
     },
     "100000": {
-     "file": "fib_100000.json",
-     "n": 99999,
-     "energy": -966006643.215086,
-     "excess": 0.005452144489619584,
-     "method": "exact"
+     "na": "odd N only"
     }
    }
   },
@@ -349,11 +453,25 @@
      "excess": 0.014128954311479276,
      "method": "exact"
     },
+    "12": {
+     "file": "zonaleq_12.json",
+     "n": 12,
+     "energy": -21.58496012360987,
+     "excess": 0.009165721310878951,
+     "method": "exact"
+    },
     "13": {
      "file": "zonaleq_13.json",
      "n": 13,
      "energy": -24.834191572485206,
      "excess": 0.014174236824016744,
+     "method": "exact"
+    },
+    "15": {
+     "file": "zonaleq_15.json",
+     "n": 15,
+     "energy": -31.951851313979695,
+     "excess": 0.023295636014858827,
      "method": "exact"
     },
     "16": {
@@ -363,11 +481,25 @@
      "excess": 0.029083188560153923,
      "method": "exact"
     },
+    "17": {
+     "file": "zonaleq_17.json",
+     "n": 17,
+     "energy": -40.22574456497098,
+     "excess": 0.01163675471758073,
+     "method": "exact"
+    },
     "20": {
      "file": "zonaleq_20.json",
      "n": 20,
      "energy": -53.94061290565033,
      "excess": 0.011176881177130567,
+     "method": "exact"
+    },
+    "23": {
+     "file": "zonaleq_23.json",
+     "n": 23,
+     "energy": -69.50038176844194,
+     "excess": 0.011113053830661801,
      "method": "exact"
     },
     "25": {
@@ -377,11 +509,25 @@
      "excess": 0.01593464117304802,
      "method": "exact"
     },
+    "29": {
+     "file": "zonaleq_29.json",
+     "n": 29,
+     "energy": -106.12865334636001,
+     "excess": 0.010651992006142074,
+     "method": "exact"
+    },
     "32": {
      "file": "zonaleq_32.json",
      "n": 32,
      "energy": -127.28938855750029,
      "excess": 0.006798124708868754,
+     "method": "exact"
+    },
+    "35": {
+     "file": "zonaleq_35.json",
+     "n": 35,
+     "energy": -150.0123496525271,
+     "excess": 0.010648194713747122,
      "method": "exact"
     },
     "40": {
@@ -391,11 +537,25 @@
      "excess": 0.017754172203258152,
      "method": "exact"
     },
+    "42": {
+     "file": "zonaleq_42.json",
+     "n": 42,
+     "energy": -210.3549868984532,
+     "excess": 0.00985877979059938,
+     "method": "exact"
+    },
     "50": {
      "file": "zonaleq_50.json",
      "n": 50,
      "energy": -291.2886243241696,
      "excess": 0.008715431343974204,
+     "method": "exact"
+    },
+    "57": {
+     "file": "zonaleq_57.json",
+     "n": 57,
+     "energy": -372.4469899444606,
+     "excess": 0.00910239706490508,
      "method": "exact"
     },
     "63": {
@@ -405,11 +565,25 @@
      "excess": 0.006412118389437037,
      "method": "exact"
     },
+    "72": {
+     "file": "zonaleq_72.json",
+     "n": 72,
+     "energy": -578.8982487779797,
+     "excess": 0.010014227134023192,
+     "method": "exact"
+    },
     "80": {
      "file": "zonaleq_80.json",
      "n": 80,
      "energy": -707.4783044631479,
      "excess": 0.005717727748631182,
+     "method": "exact"
+    },
+    "89": {
+     "file": "zonaleq_89.json",
+     "n": 89,
+     "energy": -866.6614471893308,
+     "excess": 0.007242210279254416,
      "method": "exact"
     },
     "100": {
@@ -419,11 +593,25 @@
      "excess": 0.004734583455170341,
      "method": "exact"
     },
+    "122": {
+     "file": "zonaleq_122.json",
+     "n": 122,
+     "energy": -1586.8039369986234,
+     "excess": 0.004196280281974424,
+     "method": "exact"
+    },
     "125": {
      "file": "zonaleq_125.json",
      "n": 125,
      "energy": -1662.6744363189057,
      "excess": 0.005184381242607469,
+     "method": "exact"
+    },
+    "141": {
+     "file": "zonaleq_141.json",
+     "n": 141,
+     "energy": -2097.3759113610213,
+     "excess": 0.006862390989040907,
      "method": "exact"
     },
     "160": {
@@ -433,11 +621,25 @@
      "excess": 0.0051634367842607965,
      "method": "exact"
     },
+    "192": {
+     "file": "zonaleq_192.json",
+     "n": 192,
+     "energy": -3816.8155142264955,
+     "excess": 0.005058359303727636,
+     "method": "exact"
+    },
     "200": {
      "file": "zonaleq_200.json",
      "n": 200,
      "energy": -4132.129568462497,
      "excess": 0.006452207790749319,
+     "method": "exact"
+    },
+    "223": {
+     "file": "zonaleq_223.json",
+     "n": 223,
+     "energy": -5109.01231323523,
+     "excess": 0.005137110123854507,
      "method": "exact"
     },
     "250": {
@@ -447,11 +649,25 @@
      "excess": 0.00454704379131823,
      "method": "exact"
     },
+    "282": {
+     "file": "zonaleq_282.json",
+     "n": 282,
+     "energy": -8084.323444764615,
+     "excess": 0.004218245241440791,
+     "method": "exact"
+    },
     "315": {
      "file": "zonaleq_315.json",
      "n": 315,
      "energy": -10042.948159140455,
      "excess": 0.004251641987093356,
+     "method": "exact"
+    },
+    "355": {
+     "file": "zonaleq_355.json",
+     "n": 355,
+     "energy": -12700.275080544156,
+     "excess": 0.004033887134629702,
      "method": "exact"
     },
     "400": {
@@ -461,11 +677,25 @@
      "excess": 0.0037185755825734175,
      "method": "exact"
     },
+    "432": {
+     "file": "zonaleq_432.json",
+     "n": 432,
+     "energy": -18688.307530457947,
+     "excess": 0.004728915161590382,
+     "method": "exact"
+    },
     "500": {
      "file": "zonaleq_500.json",
      "n": 500,
      "energy": -24932.13955267683,
      "excess": 0.003970711709917554,
+     "method": "exact"
+    },
+    "561": {
+     "file": "zonaleq_561.json",
+     "n": 561,
+     "energy": -31294.83582396958,
+     "excess": 0.003995949322410556,
      "method": "exact"
     },
     "630": {
@@ -475,11 +705,25 @@
      "excess": 0.004271032136782069,
      "method": "exact"
     },
+    "732": {
+     "file": "zonaleq_732.json",
+     "n": 732,
+     "energy": -52971.01084871898,
+     "excess": 0.003846946887008635,
+     "method": "exact"
+    },
     "800": {
      "file": "zonaleq_800.json",
      "n": 800,
      "energy": -63163.21897554518,
      "excess": 0.0038040889353317753,
+     "method": "exact"
+    },
+    "895": {
+     "file": "zonaleq_895.json",
+     "n": 895,
+     "energy": -78899.59012184522,
+     "excess": 0.0044052660291026184,
      "method": "exact"
     },
     "1000": {
@@ -489,11 +733,25 @@
      "excess": 0.0035977856511233645,
      "method": "exact"
     },
+    "1122": {
+     "file": "zonaleq_1122.json",
+     "n": 1122,
+     "energy": -123572.49093868284,
+     "excess": 0.003178040596868751,
+     "method": "exact"
+    },
     "1250": {
      "file": "zonaleq_1250.json",
      "n": 1250,
      "energy": -153154.5853825699,
      "excess": 0.0038469039556796587,
+     "method": "exact"
+    },
+    "1415": {
+     "file": "zonaleq_1415.json",
+     "n": 1415,
+     "energy": -195962.2827514443,
+     "excess": 0.003908340414323859,
      "method": "exact"
     },
     "1600": {
@@ -503,11 +761,25 @@
      "excess": 0.003719769193501905,
      "method": "exact"
     },
+    "1812": {
+     "file": "zonaleq_1812.json",
+     "n": 1812,
+     "energy": -320527.08057524543,
+     "excess": 0.0033700406572390166,
+     "method": "exact"
+    },
     "2000": {
      "file": "zonaleq_2000.json",
      "n": 2000,
      "energy": -390143.8223018797,
      "excess": 0.003297676362669471,
+     "method": "exact"
+    },
+    "2237": {
+     "file": "zonaleq_2237.json",
+     "n": 2237,
+     "energy": -487638.9252301728,
+     "excess": 0.0032500095485971893,
      "method": "exact"
     },
     "2500": {
@@ -517,11 +789,25 @@
      "excess": 0.0037184573283498027,
      "method": "exact"
     },
+    "2792": {
+     "file": "zonaleq_2792.json",
+     "n": 2792,
+     "energy": -758423.7599240926,
+     "excess": 0.0031472563105070274,
+     "method": "exact"
+    },
     "3150": {
      "file": "zonaleq_3150.json",
      "n": 3150,
      "energy": -964671.6666836378,
      "excess": 0.003427916979299935,
+     "method": "exact"
+    },
+    "3549": {
+     "file": "zonaleq_3549.json",
+     "n": 3549,
+     "energy": -1223722.5021651543,
+     "excess": 0.003386926489471202,
      "method": "exact"
     },
     "4000": {
@@ -531,11 +817,25 @@
      "excess": 0.00340973688975215,
      "method": "exact"
     },
+    "4482": {
+     "file": "zonaleq_4482.json",
+     "n": 4482,
+     "energy": -1949531.5335878998,
+     "excess": 0.0034843402568205395,
+     "method": "exact"
+    },
     "5000": {
      "file": "zonaleq_5000.json",
      "n": 5000,
      "energy": -2425110.0820711926,
      "excess": 0.003035935950500516,
+     "method": "exact"
+    },
+    "5613": {
+     "file": "zonaleq_5613.json",
+     "n": 5613,
+     "energy": -3054876.3613050976,
+     "excess": 0.0033770599692327895,
      "method": "exact"
     },
     "6300": {
@@ -545,11 +845,25 @@
      "excess": 0.0035016446402985815,
      "method": "exact"
     },
+    "7092": {
+     "file": "zonaleq_7092.json",
+     "n": 7092,
+     "energy": -4873206.172769306,
+     "excess": 0.0030752676751755726,
+     "method": "exact"
+    },
     "8000": {
      "file": "zonaleq_8000.json",
      "n": 8000,
      "energy": -6198879.76795753,
      "excess": 0.00335310272722279,
+     "method": "exact"
+    },
+    "8945": {
+     "file": "zonaleq_8945.json",
+     "n": 8945,
+     "energy": -7747713.183561257,
+     "excess": 0.003119941837720649,
      "method": "exact"
     },
     "10000": {
@@ -559,11 +873,25 @@
      "excess": 0.0034428306167697087,
      "method": "exact"
     },
+    "11172": {
+     "file": "zonaleq_11172.json",
+     "n": 11172,
+     "energy": -12080004.961977731,
+     "excess": 0.003185488804663575,
+     "method": "exact"
+    },
     "12500": {
      "file": "zonaleq_12500.json",
      "n": 12500,
      "energy": -15119409.344017759,
      "excess": 0.003304611531748588,
+     "method": "exact"
+    },
+    "14143": {
+     "file": "zonaleq_14143.json",
+     "n": 14143,
+     "energy": -19351215.447342347,
+     "excess": 0.0033955962358187563,
      "method": "exact"
     },
     "16000": {
@@ -573,11 +901,25 @@
      "excess": 0.0032943352325873884,
      "method": "exact"
     },
+    "17892": {
+     "file": "zonaleq_17892.json",
+     "n": 17892,
+     "energy": -30959727.4277549,
+     "excess": 0.0034477286606998192,
+     "method": "exact"
+    },
     "20000": {
      "file": "zonaleq_20000.json",
      "n": 20000,
      "energy": -38679443.845900856,
      "excess": 0.0032878450161596675,
+     "method": "exact"
+    },
+    "22361": {
+     "file": "zonaleq_22361.json",
+     "n": 22361,
+     "energy": -48344709.73112684,
+     "excess": 0.0034390154316973755,
      "method": "exact"
     },
     "25000": {
@@ -587,11 +929,25 @@
      "excess": 0.0032776227021887126,
      "method": "exact"
     },
+    "28092": {
+     "file": "zonaleq_28092.json",
+     "n": 28092,
+     "energy": -76284683.1329496,
+     "excess": 0.0033991882523312766,
+     "method": "exact"
+    },
     "31500": {
      "file": "zonaleq_31500.json",
      "n": 31500,
      "energy": -95907483.95424189,
      "excess": 0.003301884420347137,
+     "method": "exact"
+    },
+    "35497": {
+     "file": "zonaleq_35497.json",
+     "n": 35497,
+     "energy": -121780145.20353666,
+     "excess": 0.0032925270952453437,
      "method": "exact"
     },
     "40000": {
@@ -601,11 +957,25 @@
      "excess": 0.0033066740086305233,
      "method": "exact"
     },
+    "44682": {
+     "file": "zonaleq_44682.json",
+     "n": 44682,
+     "energy": -192928050.02040598,
+     "excess": 0.003323795642881939,
+     "method": "exact"
+    },
     "50000": {
      "file": "zonaleq_50000.json",
      "n": 50000,
      "energy": -241570449.9007802,
      "excess": 0.003263206603041195,
+     "method": "exact"
+    },
+    "56125": {
+     "file": "zonaleq_56125.json",
+     "n": 56125,
+     "energy": -304363133.11062956,
+     "excess": 0.003244534922857513,
      "method": "exact"
     },
     "63000": {
@@ -615,11 +985,25 @@
      "excess": 0.0034404752448833923,
      "method": "exact"
     },
+    "70992": {
+     "file": "zonaleq_70992.json",
+     "n": 70992,
+     "energy": -486917758.87179524,
+     "excess": 0.0032815086868601484,
+     "method": "exact"
+    },
     "80000": {
      "file": "zonaleq_80000.json",
      "n": 80000,
      "energy": -618298735.3029633,
      "excess": 0.0032792416578301983,
+     "method": "exact"
+    },
+    "89443": {
+     "file": "zonaleq_89443.json",
+     "n": 89443,
+     "energy": -772850707.4763708,
+     "excess": 0.0033220277360556626,
      "method": "exact"
     },
     "100000": {
@@ -637,291 +1021,323 @@
    "family": "Polyhedral",
    "files": {
     "10": {
-     "file": "eqareaico_10.json",
+     "na": "N = 10T + 2 only"
+    },
+    "12": {
+     "file": "eqareaico_12.json",
      "n": 12,
      "energy": -21.60614523044488,
      "excess": 0.0074002957412948435,
      "method": "exact"
     },
     "13": {
-     "file": "eqareaico_10.json",
-     "n": 12,
-     "energy": -21.60614523044488,
-     "excess": 0.0074002957412948435,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "15": {
+     "na": "N = 10T + 2 only"
     },
     "16": {
-     "file": "eqareaico_10.json",
-     "n": 12,
-     "energy": -21.60614523044488,
-     "excess": 0.0074002957412948435,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "17": {
+     "na": "N = 10T + 2 only"
     },
     "20": {
-     "file": "eqareaico_10.json",
-     "n": 12,
-     "energy": -21.60614523044488,
-     "excess": 0.0074002957412948435,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "23": {
+     "na": "N = 10T + 2 only"
     },
     "25": {
-     "file": "eqareaico_25.json",
-     "n": 32,
-     "energy": -127.37886761478026,
-     "excess": 0.004001904168869581,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "29": {
+     "na": "N = 10T + 2 only"
     },
     "32": {
-     "file": "eqareaico_25.json",
+     "file": "eqareaico_32.json",
      "n": 32,
      "energy": -127.37886761478026,
      "excess": 0.004001904168869581,
      "method": "exact"
     },
+    "35": {
+     "na": "N = 10T + 2 only"
+    },
     "40": {
-     "file": "eqareaico_40.json",
+     "na": "N = 10T + 2 only"
+    },
+    "42": {
+     "file": "eqareaico_42.json",
      "n": 42,
      "energy": -210.5226295164759,
      "excess": 0.005867288885297412,
      "method": "exact"
     },
     "50": {
-     "file": "eqareaico_40.json",
-     "n": 42,
-     "energy": -210.5226295164759,
-     "excess": 0.005867288885297412,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "57": {
+     "na": "N = 10T + 2 only"
     },
     "63": {
-     "file": "eqareaico_63.json",
+     "na": "N = 10T + 2 only"
+    },
+    "72": {
+     "file": "eqareaico_72.json",
      "n": 72,
      "energy": -579.323628628309,
      "excess": 0.004106173657226475,
      "method": "exact"
     },
     "80": {
-     "file": "eqareaico_63.json",
-     "n": 72,
-     "energy": -579.323628628309,
-     "excess": 0.004106173657226475,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "89": {
+     "na": "N = 10T + 2 only"
     },
     "100": {
-     "file": "eqareaico_100.json",
-     "n": 92,
-     "energy": -923.5821957050946,
-     "excess": 0.004083192653455284,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
     },
-    "125": {
-     "file": "eqareaico_125.json",
+    "122": {
+     "file": "eqareaico_122.json",
      "n": 122,
      "energy": -1586.6636661737484,
      "excess": 0.005346041141605248,
      "method": "exact"
     },
-    "160": {
-     "file": "eqareaico_160.json",
-     "n": 162,
-     "energy": -2744.475699855878,
-     "excess": 0.0034153378336462333,
-     "method": "exact"
+    "125": {
+     "na": "N = 10T + 2 only"
     },
-    "200": {
-     "file": "eqareaico_200.json",
+    "141": {
+     "na": "N = 10T + 2 only"
+    },
+    "160": {
+     "na": "N = 10T + 2 only"
+    },
+    "192": {
+     "file": "eqareaico_192.json",
      "n": 192,
      "energy": -3817.046722913329,
      "excess": 0.00385414739313532,
      "method": "exact"
     },
+    "200": {
+     "na": "N = 10T + 2 only"
+    },
+    "223": {
+     "na": "N = 10T + 2 only"
+    },
     "250": {
-     "file": "eqareaico_250.json",
-     "n": 252,
-     "energy": -6487.408021943046,
-     "excess": 0.003022048144539661,
+     "na": "N = 10T + 2 only"
+    },
+    "282": {
+     "file": "eqareaico_282.json",
+     "n": 282,
+     "energy": -8084.691375222574,
+     "excess": 0.0029135273054155465,
      "method": "exact"
     },
     "315": {
-     "file": "eqareaico_315.json",
-     "n": 312,
-     "energy": -9856.806561034851,
-     "excess": 0.0021848955099845954,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "355": {
+     "na": "N = 10T + 2 only"
     },
     "400": {
-     "file": "eqareaico_400.json",
-     "n": 392,
-     "energy": -15435.01699363522,
-     "excess": 0.002422151058339536,
+     "na": "N = 10T + 2 only"
+    },
+    "432": {
+     "file": "eqareaico_432.json",
+     "n": 432,
+     "energy": -18689.4601896159,
+     "excess": 0.0020607226663284218,
      "method": "exact"
     },
     "500": {
-     "file": "eqareaico_500.json",
-     "n": 492,
-     "energy": -24151.81259944667,
-     "excess": 0.002578750465966636,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "561": {
+     "na": "N = 10T + 2 only"
     },
     "630": {
-     "file": "eqareaico_630.json",
-     "n": 632,
-     "energy": -39608.70314984037,
-     "excess": 0.002535403140424431,
+     "na": "N = 10T + 2 only"
+    },
+    "732": {
+     "file": "eqareaico_732.json",
+     "n": 732,
+     "energy": -52972.39871545596,
+     "excess": 0.001950954076926724,
      "method": "exact"
     },
     "800": {
-     "file": "eqareaico_800.json",
-     "n": 792,
-     "energy": -61918.93947134477,
-     "excess": 0.002247371677827714,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "895": {
+     "na": "N = 10T + 2 only"
     },
     "1000": {
-     "file": "eqareaico_1000.json",
-     "n": 1002,
-     "energy": -98716.72363398001,
-     "excess": 0.0022941679663860595,
+     "na": "N = 10T + 2 only"
+    },
+    "1122": {
+     "file": "eqareaico_1122.json",
+     "n": 1122,
+     "energy": -123573.34629641932,
+     "excess": 0.002415689673088909,
      "method": "exact"
     },
     "1250": {
-     "file": "eqareaico_1250.json",
-     "n": 1242,
-     "energy": -151215.23117841838,
-     "excess": 0.001927482360240163,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "1415": {
+     "na": "N = 10T + 2 only"
     },
     "1600": {
-     "file": "eqareaico_1600.json",
-     "n": 1572,
-     "energy": -241584.37628682455,
-     "excess": 0.0018838846498927132,
+     "na": "N = 10T + 2 only"
+    },
+    "1812": {
+     "file": "eqareaico_1812.json",
+     "n": 1812,
+     "energy": -320529.4352133486,
+     "excess": 0.0020705715053911593,
      "method": "exact"
     },
     "2000": {
-     "file": "eqareaico_2000.json",
-     "n": 1992,
-     "energy": -387045.09682077134,
-     "excess": 0.001870699727748306,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "2237": {
+     "na": "N = 10T + 2 only"
     },
     "2500": {
-     "file": "eqareaico_2500.json",
-     "n": 2522,
-     "energy": -619257.5631613412,
-     "excess": 0.002345783379415602,
+     "na": "N = 10T + 2 only"
+    },
+    "2792": {
+     "file": "eqareaico_2792.json",
+     "n": 2792,
+     "energy": -758427.1956121115,
+     "excess": 0.0019167090258265362,
      "method": "exact"
     },
     "3150": {
-     "file": "eqareaico_3150.json",
-     "n": 3162,
-     "energy": -972018.1093354215,
-     "excess": 0.002128437993562994,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "3549": {
+     "na": "N = 10T + 2 only"
     },
     "4000": {
-     "file": "eqareaico_4000.json",
-     "n": 4002,
-     "energy": -1555124.803461513,
-     "excess": 0.0020409200357660766,
+     "na": "N = 10T + 2 only"
+    },
+    "4482": {
+     "file": "eqareaico_4482.json",
+     "n": 4482,
+     "energy": -1949536.7725627075,
+     "excess": 0.0023154480641138903,
      "method": "exact"
     },
     "5000": {
-     "file": "eqareaico_5000.json",
-     "n": 4992,
-     "energy": -2417375.825071582,
-     "excess": 0.002098349357844747,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "5613": {
+     "na": "N = 10T + 2 only"
     },
     "6300": {
-     "file": "eqareaico_6300.json",
-     "n": 6312,
-     "energy": -3861588.63851219,
-     "excess": 0.00258420417044671,
+     "na": "N = 10T + 2 only"
+    },
+    "7092": {
+     "file": "eqareaico_7092.json",
+     "n": 7092,
+     "energy": -4873214.831492138,
+     "excess": 0.0018543535703939966,
      "method": "exact"
     },
     "8000": {
-     "file": "eqareaico_8000.json",
-     "n": 7962,
-     "energy": -6140218.386666423,
-     "excess": 0.001884352522575682,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "8945": {
+     "na": "N = 10T + 2 only"
     },
     "10000": {
-     "file": "eqareaico_10000.json",
-     "n": 9992,
-     "energy": -9665178.12969542,
-     "excess": 0.0018554563386359855,
+     "na": "N = 10T + 2 only"
+    },
+    "11172": {
+     "file": "eqareaico_11172.json",
+     "n": 11172,
+     "energy": -12080017.61207931,
+     "excess": 0.0020531846891603963,
      "method": "exact"
     },
     "12500": {
-     "file": "eqareaico_12500.json",
-     "n": 12492,
-     "energy": -15100093.504193764,
-     "excess": 0.002203119836261295,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "14143": {
+     "na": "N = 10T + 2 only"
     },
     "16000": {
-     "file": "eqareaico_16000.json",
-     "n": 16002,
-     "energy": -24768160.542962536,
-     "excess": 0.0019546953962625005,
+     "na": "N = 10T + 2 only"
+    },
+    "17892": {
+     "file": "eqareaico_17892.json",
+     "n": 17892,
+     "energy": -30959751.929844018,
+     "excess": 0.0020782848247129387,
      "method": "exact"
     },
     "20000": {
-     "file": "eqareaico_20000.json",
-     "n": 19992,
-     "energy": -38648552.664148524,
-     "excess": 0.0018778249584667241,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "22361": {
+     "na": "N = 10T + 2 only"
     },
     "25000": {
-     "file": "eqareaico_25000.json",
-     "n": 25002,
-     "energy": -60432095.26654783,
-     "excess": 0.0019411810717377064,
+     "na": "N = 10T + 2 only"
+    },
+    "28092": {
+     "file": "eqareaico_28092.json",
+     "n": 28092,
+     "energy": -76284724.17207754,
+     "excess": 0.0019383051563587194,
      "method": "exact"
     },
     "31500": {
-     "file": "eqareaico_31500.json",
-     "n": 31482,
-     "energy": -95797994.54538222,
-     "excess": 0.0018628956288276714,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "35497": {
+     "na": "N = 10T + 2 only"
     },
     "40000": {
-     "file": "eqareaico_40000.json",
-     "n": 39992,
-     "energy": -154562916.214349,
-     "excess": 0.002059273779987573,
+     "na": "N = 10T + 2 only"
+    },
+    "44682": {
+     "file": "eqareaico_44682.json",
+     "n": 44682,
+     "energy": -192928106.44458786,
+     "excess": 0.0020610011868314924,
      "method": "exact"
     },
     "50000": {
-     "file": "eqareaico_50000.json",
-     "n": 49992,
-     "energy": -241493236.47740355,
-     "excess": 0.0020009276447708444,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "56125": {
+     "na": "N = 10T + 2 only"
     },
     "63000": {
-     "file": "eqareaico_63000.json",
-     "n": 63002,
-     "energy": -383500584.87145823,
-     "excess": 0.00223876300391979,
+     "na": "N = 10T + 2 only"
+    },
+    "70992": {
+     "file": "eqareaico_70992.json",
+     "n": 70992,
+     "energy": -486917854.1638157,
+     "excess": 0.0019392163101354942,
      "method": "exact"
     },
     "80000": {
-     "file": "eqareaico_80000.json",
-     "n": 79992,
-     "energy": -618175186.0476869,
-     "excess": 0.0022349469354079154,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
+    },
+    "89443": {
+     "na": "N = 10T + 2 only"
     },
     "100000": {
-     "file": "eqareaico_100000.json",
-     "n": 100002,
-     "energy": -966064950.5101938,
-     "excess": 0.0019182204709577771,
-     "method": "exact"
+     "na": "N = 10T + 2 only"
     }
    }
   },
@@ -937,11 +1353,25 @@
      "excess": 0.07347597978723287,
      "method": "exact"
     },
+    "12": {
+     "file": "hammersley_12.json",
+     "n": 12,
+     "energy": -20.832415975627413,
+     "excess": 0.0718777336427505,
+     "method": "exact"
+    },
     "13": {
      "file": "hammersley_13.json",
      "n": 13,
      "energy": -23.99960385451268,
      "excess": 0.07837329205267252,
+     "method": "exact"
+    },
+    "15": {
+     "file": "hammersley_15.json",
+     "n": 15,
+     "energy": -31.194687336047025,
+     "excess": 0.0737732345437035,
      "method": "exact"
     },
     "16": {
@@ -951,11 +1381,25 @@
      "excess": 0.08866942314328409,
      "method": "exact"
     },
+    "17": {
+     "file": "hammersley_17.json",
+     "n": 17,
+     "energy": -39.09630219791326,
+     "excess": 0.07807454101509369,
+     "method": "exact"
+    },
     "20": {
      "file": "hammersley_20.json",
      "n": 20,
      "energy": -52.94304827916733,
      "excess": 0.0610551125012808,
+     "method": "exact"
+    },
+    "23": {
+     "file": "hammersley_23.json",
+     "n": 23,
+     "energy": -68.57510093468571,
+     "excess": 0.051342655298324096,
      "method": "exact"
     },
     "25": {
@@ -965,11 +1409,25 @@
      "excess": 0.047157101863594564,
      "method": "exact"
     },
+    "29": {
+     "file": "hammersley_29.json",
+     "n": 29,
+     "energy": -104.71819437028358,
+     "excess": 0.05928850842257059,
+     "method": "exact"
+    },
     "32": {
      "file": "hammersley_32.json",
      "n": 32,
      "energy": -125.20329951879451,
      "excess": 0.07198840716842436,
+     "method": "exact"
+    },
+    "35": {
+     "file": "hammersley_35.json",
+     "n": 35,
+     "energy": -148.00285222618817,
+     "excess": 0.06806240689485925,
      "method": "exact"
     },
     "40": {
@@ -979,11 +1437,25 @@
      "excess": 0.06111276357223355,
      "method": "exact"
     },
+    "42": {
+     "file": "hammersley_42.json",
+     "n": 42,
+     "energy": -208.33946158588853,
+     "excess": 0.05784747770880597,
+     "method": "exact"
+    },
     "50": {
      "file": "hammersley_50.json",
      "n": 50,
      "energy": -289.1163784824241,
      "excess": 0.05216034817888321,
+     "method": "exact"
+    },
+    "57": {
+     "file": "hammersley_57.json",
+     "n": 57,
+     "energy": -370.6560227356165,
+     "excess": 0.04052287441304721,
      "method": "exact"
     },
     "63": {
@@ -993,11 +1465,25 @@
      "excess": 0.04709819864077828,
      "method": "exact"
     },
+    "72": {
+     "file": "hammersley_72.json",
+     "n": 72,
+     "energy": -575.1830940324594,
+     "excess": 0.06161359859958285,
+     "method": "exact"
+    },
     "80": {
      "file": "hammersley_80.json",
      "n": 80,
      "energy": -702.9665228825253,
      "excess": 0.06211499750641364,
+     "method": "exact"
+    },
+    "89": {
+     "file": "hammersley_89.json",
+     "n": 89,
+     "energy": -862.7385490908645,
+     "excess": 0.05131971700359556,
      "method": "exact"
     },
     "100": {
@@ -1007,11 +1493,25 @@
      "excess": 0.05797928564220062,
      "method": "exact"
     },
+    "122": {
+     "file": "hammersley_122.json",
+     "n": 122,
+     "energy": -1582.058642266024,
+     "excess": 0.043092138745903966,
+     "method": "exact"
+    },
     "125": {
      "file": "hammersley_125.json",
      "n": 125,
      "energy": -1657.6117822617107,
      "excess": 0.0456856137001675,
+     "method": "exact"
+    },
+    "141": {
+     "file": "hammersley_141.json",
+     "n": 141,
+     "energy": -2089.8101322780994,
+     "excess": 0.060520398669337616,
      "method": "exact"
     },
     "160": {
@@ -1021,11 +1521,25 @@
      "excess": 0.062203212362007154,
      "method": "exact"
     },
+    "192": {
+     "file": "hammersley_192.json",
+     "n": 192,
+     "energy": -3806.983931142889,
+     "excess": 0.05626452119751069,
+     "method": "exact"
+    },
     "200": {
      "file": "hammersley_200.json",
      "n": 200,
      "energy": -4121.747024393391,
      "excess": 0.05836492813628026,
+     "method": "exact"
+    },
+    "223": {
+     "file": "hammersley_223.json",
+     "n": 223,
+     "energy": -5097.851561677471,
+     "excess": 0.05518532338734727,
      "method": "exact"
     },
     "250": {
@@ -1035,11 +1549,25 @@
      "excess": 0.047548821074499814,
      "method": "exact"
     },
+    "282": {
+     "file": "hammersley_282.json",
+     "n": 282,
+     "energy": -8068.928064426649,
+     "excess": 0.05881179253919056,
+     "method": "exact"
+    },
     "315": {
      "file": "hammersley_315.json",
      "n": 315,
      "energy": -10026.227495988116,
      "excess": 0.0573331123119778,
+     "method": "exact"
+    },
+    "355": {
+     "file": "hammersley_355.json",
+     "n": 355,
+     "energy": -12680.111087711946,
+     "excess": 0.06083386694366987,
      "method": "exact"
     },
     "400": {
@@ -1049,11 +1577,25 @@
      "excess": 0.06109708504311892,
      "method": "exact"
     },
+    "432": {
+     "file": "hammersley_432.json",
+     "n": 432,
+     "energy": -18664.956472974773,
+     "excess": 0.05878228896523477,
+     "method": "exact"
+    },
     "500": {
      "file": "hammersley_500.json",
      "n": 500,
      "energy": -24907.219354389996,
      "excess": 0.05381110828358276,
+     "method": "exact"
+    },
+    "561": {
+     "file": "hammersley_561.json",
+     "n": 561,
+     "energy": -31263.11225900868,
+     "excess": 0.06054419345948666,
      "method": "exact"
     },
     "630": {
@@ -1063,11 +1605,25 @@
      "excess": 0.059528948559115655,
      "method": "exact"
     },
+    "732": {
+     "file": "hammersley_732.json",
+     "n": 732,
+     "energy": -52928.82653596368,
+     "excess": 0.06147578944888918,
+     "method": "exact"
+    },
     "800": {
      "file": "hammersley_800.json",
      "n": 800,
      "energy": -63115.86069871964,
      "excess": 0.0630019349672546,
+     "method": "exact"
+    },
+    "895": {
+     "file": "hammersley_895.json",
+     "n": 895,
+     "energy": -78849.87533092483,
+     "excess": 0.0599525184541219,
      "method": "exact"
     },
     "1000": {
@@ -1077,11 +1633,25 @@
      "excess": 0.05975187832064311,
      "method": "exact"
     },
+    "1122": {
+     "file": "hammersley_1122.json",
+     "n": 1122,
+     "energy": -123504.6616230512,
+     "excess": 0.06363197609742896,
+     "method": "exact"
+    },
     "1250": {
      "file": "hammersley_1250.json",
      "n": 1250,
      "energy": -153079.58631154118,
      "excess": 0.06384616077865438,
+     "method": "exact"
+    },
+    "1415": {
+     "file": "hammersley_1415.json",
+     "n": 1415,
+     "energy": -195877.44036856922,
+     "excess": 0.06386762159811708,
      "method": "exact"
     },
     "1600": {
@@ -1091,11 +1661,25 @@
      "excess": 0.06408633086250363,
      "method": "exact"
     },
+    "1812": {
+     "file": "hammersley_1812.json",
+     "n": 1812,
+     "energy": -320417.5908721179,
+     "excess": 0.06379482163271841,
+     "method": "exact"
+    },
     "2000": {
      "file": "hammersley_2000.json",
      "n": 2000,
      "energy": -390024.0902994046,
      "excess": 0.0631636776002389,
+     "method": "exact"
+    },
+    "2237": {
+     "file": "hammersley_2237.json",
+     "n": 2237,
+     "energy": -487502.2961974204,
+     "excess": 0.06432691288003958,
      "method": "exact"
     },
     "2500": {
@@ -1105,11 +1689,25 @@
      "excess": 0.06485846662776229,
      "method": "exact"
     },
+    "2792": {
+     "file": "hammersley_2792.json",
+     "n": 2792,
+     "energy": -758251.6958519076,
+     "excess": 0.06477478932808306,
+     "method": "exact"
+    },
     "3150": {
      "file": "hammersley_3150.json",
      "n": 3150,
      "energy": -964477.0394984133,
      "excess": 0.06521432498704825,
+     "method": "exact"
+    },
+    "3549": {
+     "file": "hammersley_3549.json",
+     "n": 3549,
+     "energy": -1223504.6859453646,
+     "excess": 0.06476089656264776,
      "method": "exact"
     },
     "4000": {
@@ -1119,11 +1717,25 @@
      "excess": 0.06478028679454953,
      "method": "exact"
     },
+    "4482": {
+     "file": "hammersley_4482.json",
+     "n": 4482,
+     "energy": -1949253.9463227494,
+     "excess": 0.06541813435556292,
+     "method": "exact"
+    },
     "5000": {
      "file": "hammersley_5000.json",
      "n": 5000,
      "energy": -2424796.766641008,
      "excess": 0.06569902198742503,
+     "method": "exact"
+    },
+    "5613": {
+     "file": "hammersley_5613.json",
+     "n": 5613,
+     "energy": -3054527.85331644,
+     "excess": 0.06546649318814839,
      "method": "exact"
     },
     "6300": {
@@ -1133,11 +1745,25 @@
      "excess": 0.06590669123101889,
      "method": "exact"
     },
+    "7092": {
+     "file": "hammersley_7092.json",
+     "n": 7092,
+     "energy": -4872762.249037917,
+     "excess": 0.06567026646111046,
+     "method": "exact"
+    },
     "8000": {
      "file": "hammersley_8000.json",
      "n": 8000,
      "energy": -6198380.487718954,
      "excess": 0.06576313254919376,
+     "method": "exact"
+    },
+    "8945": {
+     "file": "hammersley_8945.json",
+     "n": 8945,
+     "energy": -7747151.124865355,
+     "excess": 0.06595489945677288,
      "method": "exact"
     },
     "10000": {
@@ -1147,11 +1773,25 @@
      "excess": 0.06620973705997814,
      "method": "exact"
     },
+    "11172": {
+     "file": "hammersley_11172.json",
+     "n": 11172,
+     "energy": -12079300.232945692,
+     "excess": 0.06626542364530076,
+     "method": "exact"
+    },
     "12500": {
      "file": "hammersley_12500.json",
      "n": 12500,
      "energy": -15118623.031912044,
      "excess": 0.06620957998904624,
+     "method": "exact"
+    },
+    "14143": {
+     "file": "hammersley_14143.json",
+     "n": 14143,
+     "energy": -19350326.16024394,
+     "excess": 0.06627384684811528,
      "method": "exact"
     },
     "16000": {
@@ -1161,11 +1801,25 @@
      "excess": 0.06619351266303374,
      "method": "exact"
     },
+    "17892": {
+     "file": "hammersley_17892.json",
+     "n": 17892,
+     "energy": -30958600.40987532,
+     "excess": 0.06643777335029462,
+     "method": "exact"
+    },
     "20000": {
      "file": "hammersley_20000.json",
      "n": 20000,
      "energy": -38678177.738928676,
      "excess": 0.06659319362519175,
+     "method": "exact"
+    },
+    "22361": {
+     "file": "hammersley_22361.json",
+     "n": 22361,
+     "energy": -48343296.7206347,
+     "excess": 0.06662986074882515,
      "method": "exact"
     },
     "25000": {
@@ -1175,11 +1829,25 @@
      "excess": 0.06662197699318585,
      "method": "exact"
     },
+    "28092": {
+     "file": "hammersley_28092.json",
+     "n": 28092,
+     "energy": -76282906.55221644,
+     "excess": 0.06664070659081843,
+     "method": "exact"
+    },
     "31500": {
      "file": "hammersley_31500.json",
      "n": 31500,
      "energy": -95905488.45942093,
      "excess": 0.06665092635561655,
+     "method": "exact"
+    },
+    "35497": {
+     "file": "hammersley_35497.json",
+     "n": 35497,
+     "energy": -121777893.23920614,
+     "excess": 0.06673350324853085,
      "method": "exact"
     },
     "40000": {
@@ -1189,11 +1857,25 @@
      "excess": 0.06670014036179085,
      "method": "exact"
     },
+    "44682": {
+     "file": "hammersley_44682.json",
+     "n": 44682,
+     "energy": -192925217.19824553,
+     "excess": 0.0667234232436755,
+     "method": "exact"
+    },
     "50000": {
      "file": "hammersley_50000.json",
      "n": 50000,
      "energy": -241567276.50129554,
      "excess": 0.06673119629642768,
+     "method": "exact"
+    },
+    "56125": {
+     "file": "hammersley_56125.json",
+     "n": 56125,
+     "energy": -304359568.48444676,
+     "excess": 0.06675680544080762,
      "method": "exact"
     },
     "63000": {
@@ -1203,11 +1885,25 @@
      "excess": 0.06675089578597337,
      "method": "exact"
     },
+    "70992": {
+     "file": "hammersley_70992.json",
+     "n": 70992,
+     "energy": -486913244.6775981,
+     "excess": 0.06686887342017521,
+     "method": "exact"
+    },
     "80000": {
      "file": "hammersley_80000.json",
      "n": 80000,
      "energy": -618293648.3285518,
      "excess": 0.0668664218016425,
+     "method": "exact"
+    },
+    "89443": {
+     "file": "hammersley_89443.json",
+     "n": 89443,
+     "energy": -772845018.8251677,
+     "excess": 0.06692288194696341,
      "method": "exact"
     },
     "100000": {
@@ -1231,11 +1927,25 @@
      "excess": 0.012872494892728532,
      "method": "exact"
     },
+    "12": {
+     "file": "tz_12.json",
+     "n": 12,
+     "energy": -21.60614523043772,
+     "excess": 0.007400295741891699,
+     "method": "exact"
+    },
     "13": {
      "file": "tz_13.json",
      "n": 13,
      "energy": -24.863357879869277,
      "excess": 0.011930674717549803,
+     "method": "exact"
+    },
+    "15": {
+     "file": "tz_15.json",
+     "n": 15,
+     "energy": -32.03313197350447,
+     "excess": 0.017876925379874016,
      "method": "exact"
     },
     "16": {
@@ -1245,11 +1955,25 @@
      "excess": 0.023858973717102012,
      "method": "exact"
     },
+    "17": {
+     "file": "tz_17.json",
+     "n": 17,
+     "energy": -40.09052946839247,
+     "excess": 0.019590583928081485,
+     "method": "exact"
+    },
     "20": {
      "file": "tz_20.json",
      "n": 20,
      "energy": -53.9577233566003,
      "excess": 0.010321358629632356,
+     "method": "exact"
+    },
+    "23": {
+     "file": "tz_23.json",
+     "n": 23,
+     "energy": -69.54584242454844,
+     "excess": 0.009136503565161838,
      "method": "exact"
     },
     "25": {
@@ -1259,11 +1983,25 @@
      "excess": 0.015318316923574113,
      "method": "exact"
     },
+    "29": {
+     "file": "tz_29.json",
+     "n": 29,
+     "energy": -106.2058865971663,
+     "excess": 0.00798877646109768,
+     "method": "exact"
+    },
     "32": {
      "file": "tz_32.json",
      "n": 32,
      "energy": -127.33719967321966,
      "excess": 0.005304027342638458,
+     "method": "exact"
+    },
+    "35": {
+     "file": "tz_35.json",
+     "n": 35,
+     "energy": -150.15863822051097,
+     "excess": 0.006468521342779307,
      "method": "exact"
     },
     "40": {
@@ -1273,11 +2011,25 @@
      "excess": 0.006600142682833139,
      "method": "exact"
     },
+    "42": {
+     "file": "tz_42.json",
+     "n": 42,
+     "energy": -210.4691853077577,
+     "excess": 0.0071397700452543195,
+     "method": "exact"
+    },
     "50": {
      "file": "tz_50.json",
      "n": 50,
      "energy": -291.17828535776374,
      "excess": 0.010922210672090886,
+     "method": "exact"
+    },
+    "57": {
+     "file": "tz_57.json",
+     "n": 57,
+     "energy": -372.6005705443231,
+     "excess": 0.0064080005760894015,
      "method": "exact"
     },
     "63": {
@@ -1287,11 +2039,25 @@
      "excess": 0.004643202520304556,
      "method": "exact"
     },
+    "72": {
+     "file": "tz_72.json",
+     "n": 72,
+     "energy": -579.2453486883649,
+     "excess": 0.005193395045340302,
+     "method": "exact"
+    },
     "80": {
      "file": "tz_80.json",
      "n": 80,
      "energy": -707.5435111800581,
      "excess": 0.0049026437872535435,
+     "method": "exact"
+    },
+    "89": {
+     "file": "tz_89.json",
+     "n": 89,
+     "energy": -866.8723156726685,
+     "excess": 0.004872901477707643,
      "method": "exact"
     },
     "100": {
@@ -1301,11 +2067,25 @@
      "excess": 0.004043332284828157,
      "method": "exact"
     },
+    "122": {
+     "file": "tz_122.json",
+     "n": 122,
+     "energy": -1586.8140124525607,
+     "excess": 0.004113694593963268,
+     "method": "exact"
+    },
     "125": {
      "file": "tz_125.json",
      "n": 125,
      "energy": -1662.8230386742102,
      "excess": 0.003995562400171092,
+     "method": "exact"
+    },
+    "141": {
+     "file": "tz_141.json",
+     "n": 141,
+     "energy": -2097.791557979177,
+     "excess": 0.003914542633326485,
      "method": "exact"
     },
     "160": {
@@ -1315,11 +2095,25 @@
      "excess": 0.0038073684048439992,
      "method": "exact"
     },
+    "192": {
+     "file": "tz_192.json",
+     "n": 192,
+     "energy": -3817.0894247423435,
+     "excess": 0.003631742033685961,
+     "method": "exact"
+    },
     "200": {
      "file": "tz_200.json",
      "n": 200,
      "energy": -4132.713995460425,
      "excess": 0.0035300728011095754,
+     "method": "exact"
+    },
+    "223": {
+     "file": "tz_223.json",
+     "n": 223,
+     "energy": -5109.472741117986,
+     "excess": 0.003072411098044914,
      "method": "exact"
     },
     "250": {
@@ -1329,11 +2123,25 @@
      "excess": 0.0034185685075145207,
      "method": "exact"
     },
+    "282": {
+     "file": "tz_282.json",
+     "n": 282,
+     "energy": -8084.474046981363,
+     "excess": 0.003684194827438428,
+     "method": "exact"
+    },
     "315": {
      "file": "tz_315.json",
      "n": 315,
      "energy": -10043.134206838873,
      "excess": 0.00366101437306667,
+     "method": "exact"
+    },
+    "355": {
+     "file": "tz_355.json",
+     "n": 355,
+     "energy": -12700.39485346872,
+     "excess": 0.0036964986147281793,
      "method": "exact"
     },
     "400": {
@@ -1343,11 +2151,25 @@
      "excess": 0.003060896442219369,
      "method": "exact"
     },
+    "432": {
+     "file": "tz_432.json",
+     "n": 432,
+     "energy": -18688.85868159182,
+     "excess": 0.0034531023516976844,
+     "method": "exact"
+    },
     "500": {
      "file": "tz_500.json",
      "n": 500,
      "energy": -24932.744035802545,
      "excess": 0.0027617454584839595,
+     "method": "exact"
+    },
+    "561": {
+     "file": "tz_561.json",
+     "n": 561,
+     "energy": -31295.509819499537,
+     "excess": 0.0027945312654498846,
      "method": "exact"
     },
     "630": {
@@ -1357,11 +2179,25 @@
      "excess": 0.0030132377624247212,
      "method": "exact"
     },
+    "732": {
+     "file": "tz_732.json",
+     "n": 732,
+     "energy": -52971.66658379934,
+     "excess": 0.0029511339356927484,
+     "method": "exact"
+    },
     "800": {
      "file": "tz_800.json",
      "n": 800,
      "energy": -63164.04081276878,
      "excess": 0.002776792405828756,
+     "method": "exact"
+    },
+    "895": {
+     "file": "tz_895.json",
+     "n": 895,
+     "energy": -78901.2306566309,
+     "excess": 0.002572266268556314,
      "method": "exact"
     },
     "1000": {
@@ -1371,11 +2207,25 @@
      "excess": 0.0024298682647857154,
      "method": "exact"
     },
+    "1122": {
+     "file": "tz_1122.json",
+     "n": 1122,
+     "energy": -123573.18435162664,
+     "excess": 0.002560025495440688,
+     "method": "exact"
+    },
     "1250": {
      "file": "tz_1250.json",
      "n": 1250,
      "energy": -153156.64072813935,
      "excess": 0.0022026275001124983,
+     "method": "exact"
+    },
+    "1415": {
+     "file": "tz_1415.json",
+     "n": 1415,
+     "energy": -195964.58651893656,
+     "excess": 0.002280236179506141,
      "method": "exact"
     },
     "1600": {
@@ -1385,11 +2235,25 @@
      "excess": 0.002169734026336572,
      "method": "exact"
     },
+    "1812": {
+     "file": "tz_1812.json",
+     "n": 1812,
+     "energy": -320529.5303772419,
+     "excess": 0.0020180528004974207,
+     "method": "exact"
+    },
     "2000": {
      "file": "tz_2000.json",
      "n": 2000,
      "energy": -390146.3751822684,
      "excess": 0.0020212361683417373,
+     "method": "exact"
+    },
+    "2237": {
+     "file": "tz_2237.json",
+     "n": 2237,
+     "energy": -487641.81150082964,
+     "excess": 0.0019597678602468224,
      "method": "exact"
     },
     "2500": {
@@ -1399,11 +2263,25 @@
      "excess": 0.0018132790011345487,
      "method": "exact"
     },
+    "2792": {
+     "file": "tz_2792.json",
+     "n": 2792,
+     "energy": -758427.5479236246,
+     "excess": 0.0017905229537865481,
+     "method": "exact"
+    },
     "3150": {
      "file": "tz_3150.json",
      "n": 3150,
      "energy": -964677.0482756362,
      "excess": 0.0017194750750428136,
+     "method": "exact"
+    },
+    "3549": {
+     "file": "tz_3549.json",
+     "n": 3549,
+     "energy": -1223728.205662087,
+     "excess": 0.0017798549389515558,
      "method": "exact"
     },
     "4000": {
@@ -1413,11 +2291,25 @@
      "excess": 0.0016402661509048464,
      "method": "exact"
     },
+    "4482": {
+     "file": "tz_4482.json",
+     "n": 4482,
+     "energy": -1949539.8493358628,
+     "excess": 0.0016289748032213085,
+     "method": "exact"
+    },
     "5000": {
      "file": "tz_5000.json",
      "n": 5000,
      "energy": -2425117.752451753,
      "excess": 0.0015018598384341202,
+     "method": "exact"
+    },
+    "5613": {
+     "file": "tz_5613.json",
+     "n": 5613,
+     "energy": -3054887.087322851,
+     "excess": 0.001466135730245875,
      "method": "exact"
     },
     "6300": {
@@ -1427,11 +2319,25 @@
      "excess": 0.0013888563535746426,
      "method": "exact"
     },
+    "7092": {
+     "file": "tz_7092.json",
+     "n": 7092,
+     "energy": -4873218.256897532,
+     "excess": 0.001371357885807664,
+     "method": "exact"
+    },
     "8000": {
      "file": "tz_8000.json",
      "n": 8000,
      "energy": -6198895.974043533,
      "excess": 0.001327341976821912,
+     "method": "exact"
+    },
+    "8945": {
+     "file": "tz_8945.json",
+     "n": 8945,
+     "energy": -7747729.754745316,
+     "excess": 0.0012673779407269996,
      "method": "exact"
     },
     "10000": {
@@ -1441,11 +2347,25 @@
      "excess": 0.0012329690193552893,
      "method": "exact"
     },
+    "11172": {
+     "file": "tz_11172.json",
+     "n": 11172,
+     "energy": -12080027.558276571,
+     "excess": 0.0011629056645900881,
+     "method": "exact"
+    },
     "12500": {
      "file": "tz_12500.json",
      "n": 12500,
      "energy": -15119436.505669318,
      "excess": 0.001131679407082184,
+     "method": "exact"
+    },
+    "14143": {
+     "file": "tz_14143.json",
+     "n": 14143,
+     "energy": -19351247.959554695,
+     "excess": 0.0010967761588977286,
      "method": "exact"
     },
     "16000": {
@@ -1455,11 +2375,25 @@
      "excess": 0.0010377921578546983,
      "method": "exact"
     },
+    "17892": {
+     "file": "tz_17892.json",
+     "n": 17892,
+     "energy": -30959770.98460254,
+     "excess": 0.0010132972031810011,
+     "method": "exact"
+    },
     "20000": {
      "file": "tz_20000.json",
      "n": 20000,
      "energy": -38679490.38452966,
      "excess": 0.0009609135759460741,
+     "method": "exact"
+    },
+    "22361": {
+     "file": "tz_22361.json",
+     "n": 22361,
+     "energy": -48344765.67629188,
+     "excess": 0.0009371074201179607,
      "method": "exact"
     },
     "25000": {
@@ -1469,11 +2403,25 @@
      "excess": 0.0008998398430447951,
      "method": "exact"
     },
+    "28092": {
+     "file": "tz_28092.json",
+     "n": 28092,
+     "energy": -76284754.21835484,
+     "excess": 0.000868738116246379,
+     "method": "exact"
+    },
     "31500": {
      "file": "tz_31500.json",
      "n": 31500,
      "energy": -95907561.47554086,
      "excess": 0.0008408908022608683,
+     "method": "exact"
+    },
+    "35497": {
+     "file": "tz_35497.json",
+     "n": 35497,
+     "energy": -121780233.50543146,
+     "excess": 0.0008049395582000079,
      "method": "exact"
     },
     "40000": {
@@ -1483,11 +2431,25 @@
      "excess": 0.0007683608488182813,
      "method": "exact"
     },
+    "44682": {
+     "file": "tz_44682.json",
+     "n": 44682,
+     "energy": -192928165.22862953,
+     "excess": 0.0007453921792164241,
+     "method": "exact"
+    },
     "50000": {
      "file": "tz_50000.json",
      "n": 50000,
      "energy": -241570576.9692979,
      "excess": 0.0007218362494111496,
+     "method": "exact"
+    },
+    "56125": {
+     "file": "tz_56125.json",
+     "n": 56125,
+     "energy": -304363276.4496705,
+     "excess": 0.0006906099173469058,
      "method": "exact"
     },
     "63000": {
@@ -1497,11 +2459,25 @@
      "excess": 0.0006666152668692619,
      "method": "exact"
     },
+    "70992": {
+     "file": "tz_70992.json",
+     "n": 70992,
+     "energy": -486917945.93087935,
+     "excess": 0.0006465768052905592,
+     "method": "exact"
+    },
     "80000": {
      "file": "tz_80000.json",
      "n": 80000,
      "energy": -618298948.629361,
      "excess": 0.0006126616849285257,
+     "method": "exact"
+    },
+    "89443": {
+     "file": "tz_89443.json",
+     "n": 89443,
+     "energy": -772850951.2789599,
+     "excess": 0.0005962404862903218,
      "method": "exact"
     },
     "100000": {
@@ -1525,11 +2501,25 @@
      "excess": 0.012872489617740263,
      "method": "exact"
     },
+    "12": {
+     "file": "tzr_12.json",
+     "n": 12,
+     "energy": -21.60614523044489,
+     "excess": 0.007400295741293955,
+     "method": "exact"
+    },
     "13": {
      "file": "tzr_13.json",
      "n": 13,
      "energy": -24.866721875506098,
      "excess": 0.01167190582240971,
+     "method": "exact"
+    },
+    "15": {
+     "file": "tzr_15.json",
+     "n": 15,
+     "energy": -32.14787628384167,
+     "excess": 0.010227304690727267,
      "method": "exact"
     },
     "16": {
@@ -1539,11 +2529,25 @@
      "excess": 0.009492767389290408,
      "method": "exact"
     },
+    "17": {
+     "file": "tzr_17.json",
+     "n": 17,
+     "energy": -40.27306696118117,
+     "excess": 0.008853084352275368,
+     "method": "exact"
+    },
     "20": {
      "file": "tzr_20.json",
      "n": 20,
      "energy": -54.01112997458417,
      "excess": 0.007651027730438627,
+     "method": "exact"
+    },
+    "23": {
+     "file": "tzr_23.json",
+     "n": 23,
+     "energy": -69.57838259252512,
+     "excess": 0.007721713653132401,
      "method": "exact"
     },
     "25": {
@@ -1553,11 +2557,25 @@
      "excess": 0.006960966080191155,
      "method": "exact"
     },
+    "29": {
+     "file": "tzr_29.json",
+     "n": 29,
+     "energy": -106.25457117083467,
+     "excess": 0.006309998058740176,
+     "method": "exact"
+    },
     "32": {
      "file": "tzr_32.json",
      "n": 32,
      "energy": -127.37886761478026,
      "excess": 0.004001904168869581,
+     "method": "exact"
+    },
+    "35": {
+     "file": "tzr_35.json",
+     "n": 35,
+     "energy": -150.19205851073812,
+     "excess": 0.005513655907717717,
      "method": "exact"
     },
     "40": {
@@ -1567,11 +2585,25 @@
      "excess": 0.004523879265380034,
      "method": "exact"
     },
+    "42": {
+     "file": "tzr_42.json",
+     "n": 42,
+     "energy": -210.58451155763396,
+     "excess": 0.004393906952962379,
+     "method": "exact"
+    },
     "50": {
      "file": "tzr_50.json",
      "n": 50,
      "energy": -291.52860065773444,
      "excess": 0.003915904672676832,
+     "method": "exact"
+    },
+    "57": {
+     "file": "tzr_57.json",
+     "n": 57,
+     "energy": -372.7412006183721,
+     "excess": 0.003940806294528005,
      "method": "exact"
     },
     "63": {
@@ -1581,11 +2613,25 @@
      "excess": 0.003575868106066203,
      "method": "exact"
     },
+    "72": {
+     "file": "tzr_72.json",
+     "n": 72,
+     "energy": -579.4203457730733,
+     "excess": 0.0027628799799447514,
+     "method": "exact"
+    },
     "80": {
      "file": "tzr_80.json",
      "n": 80,
      "energy": -707.7033461794607,
      "excess": 0.002904706294720801,
+     "method": "exact"
+    },
+    "89": {
+     "file": "tzr_89.json",
+     "n": 89,
+     "energy": -867.0425164035676,
+     "excess": 0.0029605337147967587,
      "method": "exact"
     },
     "100": {
@@ -1595,11 +2641,25 @@
      "excess": 0.0026828215787788033,
      "method": "exact"
     },
+    "122": {
+     "file": "tzr_122.json",
+     "n": 122,
+     "energy": -1587.0321940150504,
+     "excess": 0.0023253211309330227,
+     "method": "exact"
+    },
     "125": {
      "file": "tzr_125.json",
      "n": 125,
      "energy": -1663.00144580373,
      "excess": 0.0025683053640138485,
+     "method": "exact"
+    },
+    "141": {
+     "file": "tzr_141.json",
+     "n": 141,
+     "energy": -2098.009276077304,
+     "excess": 0.0023704426466096096,
      "method": "exact"
     },
     "160": {
@@ -1609,11 +2669,25 @@
      "excess": 0.0022696818485569,
      "method": "exact"
     },
+    "192": {
+     "file": "tzr_192.json",
+     "n": 192,
+     "energy": -3817.4179561804654,
+     "excess": 0.0019206407934677346,
+     "method": "exact"
+    },
     "200": {
      "file": "tzr_200.json",
      "n": 200,
      "energy": -4132.994176570191,
      "excess": 0.0021291672522836718,
+     "method": "exact"
+    },
+    "223": {
+     "file": "tzr_223.json",
+     "n": 223,
+     "energy": -5109.72778595181,
+     "excess": 0.0019287122916579818,
      "method": "exact"
     },
     "250": {
@@ -1623,11 +2697,25 @@
      "excess": 0.001960048219921247,
      "method": "exact"
     },
+    "282": {
+     "file": "tzr_282.json",
+     "n": 282,
+     "energy": -8085.027739960311,
+     "excess": 0.0017207445474818135,
+     "method": "exact"
+    },
     "315": {
      "file": "tzr_315.json",
      "n": 315,
      "energy": -10043.718092744051,
      "excess": 0.0018074083248817519,
+     "method": "exact"
+    },
+    "355": {
+     "file": "tzr_355.json",
+     "n": 355,
+     "energy": -12701.066898148647,
+     "excess": 0.0018034150093018974,
      "method": "exact"
     },
     "400": {
@@ -1637,11 +2725,25 @@
      "excess": 0.0016241688286876396,
      "method": "exact"
     },
+    "432": {
+     "file": "tzr_432.json",
+     "n": 432,
+     "energy": -18689.634385998517,
+     "excess": 0.001657490299159248,
+     "method": "exact"
+    },
     "500": {
      "file": "tzr_500.json",
      "n": 500,
      "energy": -24933.366120429644,
      "excess": 0.001517576204286046,
+     "method": "exact"
+    },
+    "561": {
+     "file": "tzr_561.json",
+     "n": 561,
+     "energy": -31296.211297894664,
+     "excess": 0.0015441241440118422,
      "method": "exact"
     },
     "630": {
@@ -1651,11 +2753,25 @@
      "excess": 0.0015666704131570123,
      "method": "exact"
     },
+    "732": {
+     "file": "tzr_732.json",
+     "n": 732,
+     "energy": -52972.75024457738,
+     "excess": 0.0014707230367356802,
+     "method": "exact"
+    },
     "800": {
      "file": "tzr_800.json",
      "n": 800,
      "energy": -63165.12852258194,
      "excess": 0.0014171551393781657,
+     "method": "exact"
+    },
+    "895": {
+     "file": "tzr_895.json",
+     "n": 895,
+     "energy": -78902.2813349025,
+     "excess": 0.0013983240656592027,
      "method": "exact"
     },
     "1000": {
@@ -1665,11 +2781,25 @@
      "excess": 0.0014093778634813013,
      "method": "exact"
     },
+    "1122": {
+     "file": "tzr_1122.json",
+     "n": 1122,
+     "energy": -123574.6071697418,
+     "excess": 0.0012919166584059733,
+     "method": "exact"
+    },
     "1250": {
      "file": "tzr_1250.json",
      "n": 1250,
      "energy": -153157.89984359386,
      "excess": 0.0011953351365133812,
+     "method": "exact"
+    },
+    "1415": {
+     "file": "tzr_1415.json",
+     "n": 1415,
+     "energy": -195966.13218254293,
+     "excess": 0.0011878944082160663,
      "method": "exact"
     },
     "1600": {
@@ -1679,11 +2809,25 @@
      "excess": 0.0012033854023055014,
      "method": "exact"
     },
+    "1812": {
+     "file": "tzr_1812.json",
+     "n": 1812,
+     "energy": -320531.16529702104,
+     "excess": 0.0011157791916911752,
+     "method": "exact"
+    },
     "2000": {
      "file": "tzr_2000.json",
      "n": 2000,
      "energy": -390148.22153689835,
      "excess": 0.0010980588533613166,
+     "method": "exact"
+    },
+    "2237": {
+     "file": "tzr_2237.json",
+     "n": 2237,
+     "energy": -487643.8163750239,
+     "excess": 0.0010635344251669276,
      "method": "exact"
     },
     "2500": {
@@ -1693,11 +2837,25 @@
      "excess": 0.0009646762510753318,
      "method": "exact"
     },
+    "2792": {
+     "file": "tzr_2792.json",
+     "n": 2792,
+     "energy": -758429.8226864026,
+     "excess": 0.000975779838433267,
+     "method": "exact"
+    },
     "3150": {
      "file": "tzr_3150.json",
      "n": 3150,
      "energy": -964679.4534920017,
      "excess": 0.0009559143240665779,
+     "method": "exact"
+    },
+    "3549": {
+     "file": "tzr_3549.json",
+     "n": 3549,
+     "energy": -1223731.441090609,
+     "excess": 0.0008682098215093094,
      "method": "exact"
     },
     "4000": {
@@ -1707,11 +2865,25 @@
      "excess": 0.0008844670010396492,
      "method": "exact"
     },
+    "4482": {
+     "file": "tzr_4482.json",
+     "n": 4482,
+     "energy": -1949543.6616378909,
+     "excess": 0.0007783942525572356,
+     "method": "exact"
+    },
     "5000": {
      "file": "tzr_5000.json",
      "n": 5000,
      "energy": -2425121.0279769246,
      "excess": 0.0008467548041139705,
+     "method": "exact"
+    },
+    "5613": {
+     "file": "tzr_5613.json",
+     "n": 5613,
+     "energy": -3054890.796793115,
+     "excess": 0.0008052644913668753,
      "method": "exact"
     },
     "6300": {
@@ -1721,11 +2893,25 @@
      "excess": 0.0007804541220556483,
      "method": "exact"
     },
+    "7092": {
+     "file": "tzr_7092.json",
+     "n": 7092,
+     "energy": -4873222.432807504,
+     "excess": 0.0007825380928475949,
+     "method": "exact"
+    },
     "8000": {
      "file": "tzr_8000.json",
      "n": 8000,
      "energy": -6198900.380247799,
      "excess": 0.0007765664436072932,
+     "method": "exact"
+    },
+    "8945": {
+     "file": "tzr_8945.json",
+     "n": 8945,
+     "energy": -7747734.44200583,
+     "excess": 0.0007433689397475217,
      "method": "exact"
     },
     "10000": {
@@ -1735,11 +2921,25 @@
      "excess": 0.0007527788805956446,
      "method": "exact"
     },
+    "11172": {
+     "file": "tzr_11172.json",
+     "n": 11172,
+     "energy": -12080032.827565642,
+     "excess": 0.0006912542977152412,
+     "method": "exact"
+    },
     "12500": {
      "file": "tzr_12500.json",
      "n": 12500,
      "energy": -15119440.152525924,
      "excess": 0.0008399308785713862,
+     "method": "exact"
+    },
+    "14143": {
+     "file": "tzr_14143.json",
+     "n": 14143,
+     "energy": -19351251.883704536,
+     "excess": 0.0008193138214304248,
      "method": "exact"
     },
     "16000": {
@@ -1749,11 +2949,25 @@
      "excess": 0.0007819507296062391,
      "method": "exact"
     },
+    "17892": {
+     "file": "tzr_17892.json",
+     "n": 17892,
+     "energy": -30959775.451391473,
+     "excess": 0.0007636443454082789,
+     "method": "exact"
+    },
     "20000": {
      "file": "tzr_20000.json",
      "n": 20000,
      "energy": -38679495.044666395,
      "excess": 0.0007279067392367551,
+     "method": "exact"
+    },
+    "22361": {
+     "file": "tzr_22361.json",
+     "n": 22361,
+     "energy": -48344770.84286467,
+     "excess": 0.0007060545696038724,
      "method": "exact"
     },
     "25000": {
@@ -1763,11 +2977,25 @@
      "excess": 0.0006850872653135258,
      "method": "exact"
     },
+    "28092": {
+     "file": "tzr_28092.json",
+     "n": 28092,
+     "energy": -76284760.15121782,
+     "excess": 0.0006575440757088096,
+     "method": "exact"
+    },
     "31500": {
      "file": "tzr_31500.json",
      "n": 31500,
      "energy": -95907567.92868054,
      "excess": 0.0006360292252011273,
+     "method": "exact"
+    },
+    "35497": {
+     "file": "tzr_35497.json",
+     "n": 35497,
+     "energy": -121780240.25691655,
+     "excess": 0.0006147408063796914,
      "method": "exact"
     },
     "40000": {
@@ -1777,11 +3005,25 @@
      "excess": 0.0005909562122065269,
      "method": "exact"
     },
+    "44682": {
+     "file": "tzr_44682.json",
+     "n": 44682,
+     "energy": -192928173.02320313,
+     "excess": 0.0005709466843577097,
+     "method": "exact"
+    },
     "50000": {
      "file": "tzr_50000.json",
      "n": 50000,
      "energy": -241570585.73404986,
      "excess": 0.0005465412096564393,
+     "method": "exact"
+    },
+    "56125": {
+     "file": "tzr_56125.json",
+     "n": 56125,
+     "energy": -304363285.35807997,
+     "excess": 0.000531885472189518,
      "method": "exact"
     },
     "63000": {
@@ -1791,11 +3033,25 @@
      "excess": 0.0005056462549124805,
      "method": "exact"
     },
+    "70992": {
+     "file": "tzr_70992.json",
+     "n": 70992,
+     "energy": -486917957.4820851,
+     "excess": 0.00048386543282949007,
+     "method": "exact"
+    },
     "80000": {
      "file": "tzr_80000.json",
      "n": 80000,
      "energy": -618298960.3398545,
      "excess": 0.0004662805177567408,
+     "method": "exact"
+    },
+    "89443": {
+     "file": "tzr_89443.json",
+     "n": 89443,
+     "energy": -772850964.3551159,
+     "excess": 0.0004500450763622151,
      "method": "exact"
     },
     "100000": {

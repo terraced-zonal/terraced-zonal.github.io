@@ -94,11 +94,13 @@ async function fetchRecord(file) {
   return j;
 }
 
-const filesFor = tIdx => state.manifest.constructions.map(c => c.files[String(state.manifest.targets[tIdx])].file);
-const isLoaded = tIdx => filesFor(tIdx).every(f => state.loaded.has(f));
+// A construction that does not exist at a target N has no file there (its card shows N/A).
+const filesFor = tIdx => state.manifest.constructions.map(c => c.files[String(state.manifest.targets[tIdx])].file || null);
+const isLoaded = tIdx => filesFor(tIdx).every(f => !f || state.loaded.has(f));
 
 function loadSet(tIdx) {
   return Promise.all(filesFor(tIdx).map(file => {
+    if (!file) return null;
     if (!state.cache[file]) {
       state.cache[file] = fetchRecord(file).then(j => { state.loaded.add(file); return j; },
                                                  err => { delete state.cache[file]; throw err; });
@@ -545,8 +547,34 @@ function drawZoom(card, angle) {
   dots.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill(); });
 }
 
+// Placeholder for a construction that does not exist at this N.
+function drawNA(card) {
+  const dpr = window.devicePixelRatio || 1;
+  const [w, h] = sizeCanvas(card.sphere, 1.0);
+  const ctx = card.sphere.getContext("2d");
+  ctx.clearRect(0, 0, w, h);
+  const rad = 0.46 * Math.min(w, h), cx = w / 2, cy = h / 2;
+  ctx.fillStyle = "#f1f2f4";
+  ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 2 * Math.PI); ctx.fill();
+  ctx.setLineDash([4 * dpr, 4 * dpr]);
+  ctx.strokeStyle = "#b9bec6"; ctx.lineWidth = 1.2 * dpr; ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "#6b7380";
+  ctx.font = `600 ${18 * dpr}px system-ui, sans-serif`;
+  ctx.fillText("N/A", cx, cy - 10 * dpr);
+  ctx.font = `${12 * dpr}px system-ui, sans-serif`;
+  ctx.fillText(`defined for ${card.na}`, cx, cy + 12 * dpr);
+  const [zw, zh] = sizeCanvas(card.zoom, HALF_Y / HALF_X);
+  const zctx = card.zoom.getContext("2d");
+  zctx.clearRect(0, 0, zw, zh);
+  zctx.fillStyle = "#f1f2f4";
+  zctx.fillRect(0, 0, zw, zh);
+}
+
 function drawAll() {
   state.cards.forEach(card => {
+    if (card.na) { drawNA(card); return; }
     if (!card.rec) return;
     drawSphere(card, state.angle);
     drawZoom(card, state.angle);
@@ -598,10 +626,13 @@ function previewN(tIdx) {
   updateZoomLabel();
   state.cards.forEach(card => {
     const f = fileOf(card, tIdx);
-    card.nval.textContent = "N = " + f.n.toLocaleString();
+    card.na = f.na || null;  // e.g. "odd N only": not defined at this N
+    card.el.classList.toggle("na", !!card.na);
+    card.nval.textContent = card.na ? "N/A" : "N = " + f.n.toLocaleString();
     card.E = f.energy;
     card.gap = f.excess;
-    card.el.classList.toggle("loading", !(card.rec && card.rec.n === f.n));
+    card.el.classList.toggle("loading", !card.na && !(card.rec && card.rec.n === f.n));
+    if (card.na) { card.rec = null; card.stats.innerHTML = ""; drawNA(card); }
   });
   updateEnergies();
 }
@@ -612,7 +643,7 @@ async function setN(tIdx) {
   const recs = await loadSet(tIdx);
   if (seq !== state.loadSeq) return;  // a later N was requested meanwhile
   state.cards.forEach((card, i) => {
-    card.rec = recs[i];
+    card.rec = recs[i];  // null where the construction is N/A
     card.el.classList.remove("loading");
   });
   updateStats();
