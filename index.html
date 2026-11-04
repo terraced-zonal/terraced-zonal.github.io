@@ -92,7 +92,7 @@
 <header>
   <div class="intro">
   <h1>A Linear-Time Construction on &#x1D54A;<sup>2</sup> Achieving a Sublinear Energy Gap on Smale&rsquo;s Seventh Problem</h1>
-  <p>Four published constructions and <b>TerracedZonal</b>, with every point's Voronoi cell colored by how far it is from a regular hexagon. The sphere turns slowly; the framed panel below each sphere is an equal-area zoom of the boxed region at the center of view, scaled to unit area per point. At the far right, TZ-R shows how far numerical optimization started from TerracedZonal gets. Each card also gives the configuration's energy gap per point above the asymptotic optimum<sup class="fn" data-fn="1">1</sup>, with the lowest of the five constructions at each N marked.</p>
+  <p>Four published constructions and <b>TerracedZonal</b>, with every point's Voronoi cell colored by how far it is from a regular hexagon. The sphere turns slowly; the framed panel below each sphere is an equal-area zoom of the boxed region at the center of view, scaled to unit area per point. At the far right, TZ-R shows how far numerical optimization started from TerracedZonal gets. Each card also gives the configuration's energy gap per point above the asymptotic optimum<sup class="fn" data-fn="1">1</sup>, with the lowest of the five constructions at each N marked, and states each algorithm&rsquo;s complexity and accuracy<sup class="fn" data-fn="2">2</sup>.</p>
   </div>
   <div class="legend" id="legend"></div>
 </header>
@@ -101,13 +101,13 @@
   <div class="control">
     <div class="seg" id="view" role="radiogroup" aria-label="Coloring">
       <div class="knob"></div>
-      <button data-view="perim" role="radio">Perimeter excess<sup class="fn" data-fn="2">2</sup></button>
-      <button data-view="aniso" role="radio">Cell anisotropy<sup class="fn" data-fn="3">3</sup></button>
-      <button data-view="defect" role="radio">Pentagons / heptagons<sup class="fn" data-fn="4">4</sup></button>
+      <button data-view="perim" role="radio">Perimeter excess<sup class="fn" data-fn="3">3</sup></button>
+      <button data-view="aniso" role="radio">Cell anisotropy<sup class="fn" data-fn="4">4</sup></button>
+      <button data-view="defect" role="radio">Pentagons / heptagons<sup class="fn" data-fn="5">5</sup></button>
     </div>
   </div>
   <div class="control">
-    <label for="nslider">N &approx;<sup class="fn" data-fn="5">5</sup> <b id="ntarget"></b></label>
+    <label for="nslider">N &approx;<sup class="fn" data-fn="6">6</sup> <b id="ntarget"></b></label>
     <div>
       <input id="nslider" type="range" min="0" max="40" step="1" value="30">
       <div class="ticks" id="nticks"></div>
@@ -129,12 +129,12 @@
 <footer>
   <ol>
     <li id="fn1"><b>Energy gap.</b> E = &sum;<sub>i&lt;j</sub> log(1/&Vert;x<sub>i</sub> &minus; x<sub>j</sub>&Vert;), each pair counted once. Cards show the gap per point (E &minus; E<sub>BHS</sub>)/N above the Brauchart&ndash;Hardin&ndash;Saff asymptotic energy E<sub>BHS</sub>; lower is better, and dividing by N makes slightly different N comparable. Below it: E itself, summed exactly over all pairs. Paper: &sect;1 and App.&nbsp;A.1.</li>
-    <li id="fn2"><b>Perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of the regular spherical hexagon of the same area: 0 for a perfect cell, at least 2.4% for any pentagon. A geometric diagnostic, not an energy bound; cards show its mean and the share of cells above 1%. Paper: Fig.&nbsp;1 and App.&nbsp;B.1.</li>
-    <li id="fn3"><b>Cell anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell&rsquo;s second-moment tensor: how elongated the cell is (near 0 for regular pentagons and heptagons). Paper: App.&nbsp;B.1.</li>
-    <li id="fn4"><b>Pentagons / heptagons.</b> A cell&rsquo;s number of sides is its number of neighbors. By Euler&rsquo;s formula, &sum;(6 &minus; sides) = 12 on any sphere; 4 or 8+ sides get darker shades.</li>
-    <li id="fn5"><b>Admissible N.</b> Each construction uses its admissible N nearest the slider value (odd N for the Fibonacci lattice, N = 10T + 2 for EqAreaIco).</li>
-    <li id="fn6"><b>TZ-R</b> is a numerically optimized variant seeded by TerracedZonal (Riemannian L-BFGS with defect moves), shown only as a reference and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
-    <li id="fn7"><b>Complexity and accuracy.</b> Complexity: time to generate the N points. Accuracy: growth of E &minus; E<sub>BHS</sub>. TerracedZonal: Proposition&nbsp;3.1 and Theorem&nbsp;4.3 (under locality assumption (A)). Published constructions: complexity from their defining formulas; linear excess as measured in the paper&rsquo;s Table&nbsp;5 (App.&nbsp;F).</li>
+    <li id="fn2"><b>Complexity and accuracy.</b> Complexity: time to generate the N points. Accuracy: how the excess E &minus; E<sub>BHS</sub> over the asymptotic energy (note 1) grows with N. TerracedZonal: Proposition&nbsp;3.1 and Theorem&nbsp;4.3 (under locality assumption (A)). Published constructions: complexity from their defining formulas; linear excess as measured in the paper&rsquo;s Table&nbsp;5 (App.&nbsp;F).</li>
+    <li id="fn3"><b>Perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of the regular spherical hexagon of the same area: 0 for a perfect cell, at least 2.4% for any pentagon. A geometric diagnostic, not an energy bound; cards show its mean and the share of cells above 1%. Paper: Fig.&nbsp;1 and App.&nbsp;B.1.</li>
+    <li id="fn4"><b>Cell anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell&rsquo;s second-moment tensor: how elongated the cell is (near 0 for regular pentagons and heptagons). Paper: App.&nbsp;B.1.</li>
+    <li id="fn5"><b>Pentagons / heptagons.</b> A cell&rsquo;s number of sides is its number of neighbors. By Euler&rsquo;s formula, &sum;(6 &minus; sides) = 12 on any sphere; 4 or 8+ sides get darker shades.</li>
+    <li id="fn6"><b>Admissible N.</b> Each construction uses its admissible N nearest the slider value (odd N for the Fibonacci lattice, N = 10T + 2 for EqAreaIco).</li>
+    <li id="fn7"><b>TZ-R</b> is a numerically optimized variant seeded by TerracedZonal (Riemannian L-BFGS with defect moves), shown only as a reference and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
   </ol>
 </footer>
 

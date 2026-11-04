@@ -108,7 +108,7 @@ function loadSet(tIdx) {
 }
 
 // --------------------------------------------------------------- cards ---
-// Complexity (time to generate the N points) and accuracy (E - E_BHS) of each algorithm (note 7).
+// Complexity (time to generate the N points) and accuracy (E - E_BHS) of each algorithm (note 2, referenced from the intro).
 // Published constructions: complexity from their defining formulas (Fibonacci lattice:
 // Swinbank & Purser 2006; ZonalEQ: Leopardi 2006; EqAreaIco: Hardin, Michaels & Saff
 // 2016; Hammersley: Cui & Freeden 1997, Wong, Luk & Heng 1997); their linear excess is
@@ -125,9 +125,8 @@ const ALGO = {
 function algoHTML(key) {
   const a = ALGO[key];
   if (!a) return "";
-  const acc = key === "tzr" ? a.acc : `E &minus; E<sub>BHS</sub> = ${a.acc}`;
-  return `<div class="algo"><span><span class="k">complexity:${FN(7)}</span> ${a.time}</span>` +
-    `<span><span class="k">accuracy:</span> ${acc}${a.how ? ` <span class="q">${a.how}</span>` : ""}</span></div>`;
+  return `<div class="algo"><span><span class="k">complexity:</span> ${a.time}</span>` +
+    `<span><span class="k">accuracy:</span> ${a.acc}${a.how ? ` <span class="q">${a.how}</span>` : ""}</span></div>`;
 }
 
 function makeCards() {
@@ -139,7 +138,7 @@ function makeCards() {
       (c.key === "tz" ? '<div class="badge">this paper</div>' : "") +
       (c.reference ? '<div class="badge ref">reference</div>' : "") +
       `<div class="title">${c.name}</div>` +
-      `<div class="family">${c.family}${c.reference ? FN(6) : ""} &middot; <span class="nval"></span></div>` +
+      `<div class="family">${c.family}${c.reference ? FN(7) : ""} &middot; <span class="nval"></span></div>` +
       '<canvas class="sphere"></canvas><canvas class="zoom"></canvas>' +
       '<div class="stats"></div>' + algoHTML(c.key) + '<div class="energy"></div>';
     row.appendChild(card);
@@ -206,7 +205,7 @@ function fmtSci(x, digits, shade) {
 }
 
 function updateEnergies() {
-  // The reference (TZ-R) is not ranked against the constructions (note 6).
+  // The reference (TZ-R) is not ranked against the constructions (note 7).
   const gaps = state.cards.filter(c => !c.ref).map(c => c.gap).filter(Number.isFinite);
   const best = gaps.length ? Math.min(...gaps) : NaN;
   state.cards.forEach(card => {
