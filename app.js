@@ -8,23 +8,29 @@ const HALF_X = 3.2, HALF_Y = 2.4;          // zoom window, in units of unit area
 const VMAX = { aniso: 0.20, perim: 0.07, eng: 0.05 }; // color-bar maxima (eng: symmetric, -0.05..+0.05)
 // Color schemes: heat-map stops, the pentagon / heptagon colors, and the
 // cell-boundary color. Clicking the legend's color bar (or the pentagon /
-// heptagon chips) cycles through PALETTE_ORDER; ?palette=A..E picks one.
+// heptagon chips) cycles through PALETTE_ORDER; ?palette=A..E picks one. Each scheme also
+// has a diverging map (div) for the energy-per-point view, cycled by its color bar.
 const PALETTES = {
   A: { name: "white \u2192 yellow \u2192 orange; teal / purple",
        stops: ["#ffffff", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014"],
-       pent: "#00a3a3", hept: "#7b3294", edge: "rgba(120,120,120,0.55)", zedge: "#9a9a9a" },
+       pent: "#00a3a3", hept: "#7b3294", edge: "rgba(120,120,120,0.55)", zedge: "#9a9a9a",
+       divName: "PuOr: purple / orange", div: ["#542788", "#998ec3", "#d8daeb", "#f7f7f7", "#fee0b6", "#f1a340", "#b35806"] },
   B: { name: "white \u2192 gray; orange / blue (Okabe\u2013Ito)",
        stops: ["#ffffff", "#e6e6e6", "#c8c8c8", "#a8a8a8", "#858585", "#636363"],
-       pent: "#e69f00", hept: "#0072b2", edge: "rgba(70,80,95,0.55)", zedge: "#56606e" },
+       pent: "#e69f00", hept: "#0072b2", edge: "rgba(70,80,95,0.55)", zedge: "#56606e",
+       divName: "BrBG: teal / brown", div: ["#01665e", "#5ab4ac", "#c7eae5", "#f5f5f5", "#f6e8c3", "#d8b365", "#8c510a"] },
   C: { name: "cividis (light end); magenta / green",
        stops: ["#fdfdf6", "#fde9a0", "#e9d26a", "#c4b765", "#a19c70", "#7f8078"],
-       pent: "#cc3399", hept: "#1b9e77", edge: "rgba(110,110,110,0.55)", zedge: "#8c8c8c" },
+       pent: "#cc3399", hept: "#1b9e77", edge: "rgba(110,110,110,0.55)", zedge: "#8c8c8c",
+       divName: "PiYG: green / pink", div: ["#4d9221", "#a1d76a", "#e6f5d0", "#f7f7f7", "#fde0ef", "#e9a3c9", "#c51b7d"] },
   D: { name: "white \u2192 blue; orange / purple",
        stops: ["#ffffff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd"],
-       pent: "#e66100", hept: "#5d3a9b", edge: "rgba(110,110,110,0.55)", zedge: "#8c8c8c" },
+       pent: "#e66100", hept: "#5d3a9b", edge: "rgba(110,110,110,0.55)", zedge: "#8c8c8c",
+       divName: "cool-warm: blue / red (Moreland)", div: ["#3b4cc0", "#7b9ff9", "#c0d4f5", "#f2f2f2", "#f2cbb7", "#ee8468", "#b40426"] },
   E: { name: "yellow \u2192 brown; red / blue",
        stops: ["#ffffe5", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#993404", "#662506"],
-       pent: "#e3412f", hept: "#1a73e8", edge: "rgba(120,120,120,0.55)", zedge: "#9a9a9a" },
+       pent: "#e3412f", hept: "#1a73e8", edge: "rgba(120,120,120,0.55)", zedge: "#9a9a9a",
+       divName: "RdBu: blue / red", div: ["#2166ac", "#67a9cf", "#d1e5f0", "#f7f7f7", "#fddbc7", "#ef8a62", "#b2182b"] },
 };
 const PALETTE_ORDER = ["E", "A", "B", "C", "D"];
 let PAL_KEY = new URLSearchParams(location.search).get("palette");
@@ -69,8 +75,8 @@ function heatRGB(v) {
 }
 function heatColor(v) { return `rgb(${heatRGB(v).join(",")})`; }
 // Energy per point: diverging blue (below E_BHS/N) - white - red (above), centered at 0.
-const DIVERGING = ["#2166ac", "#67a9cf", "#d1e5f0", "#f7f7f7", "#fddbc7", "#ef8a62", "#b2182b"];
-const DIVERGING_RGB = DIVERGING.map(hex2rgb);
+let DIVERGING = PAL.div;
+let DIVERGING_RGB = DIVERGING.map(hex2rgb);
 function divRGB(v) {  // v in [-1, 1]
   const x = (Math.max(-1, Math.min(1, v)) + 1) / 2 * (DIVERGING_RGB.length - 1);
   const i = Math.min(Math.floor(x), DIVERGING_RGB.length - 2), f = x - i;
@@ -670,9 +676,9 @@ function updateLegend() {
       const stops = DIVERGING.map((c, i) => `${c} ${(100 * i / (DIVERGING.length - 1)).toFixed(1)}%`).join(",");
       const t = v => (v < 0 ? "\u2212" : v > 0 ? "+" : "") + Math.abs(v).toFixed(2);
       const ticks = [-1, -0.5, 0, 0.5, 1].map(f => (f === -1 ? "\u2264" : f === 1 ? "\u2265" : "") + t(f * vm));
-      el.innerHTML = `<div class="colorbar"><div class="bar" style="background:linear-gradient(to right,${stops})"></div>` +
+      el.innerHTML = `<div class="colorbar"><div class="bar cycle" title="Colors: ${PAL.divName}. Click for the next scheme." style="background:linear-gradient(to right,${stops})"></div>` +
         `<div class="lbl">${ticks.map(x => `<span>${x}</span>`).join("")}</div>` +
-        `<div style="text-align:center;margin-top:2px">each point&rsquo;s share of (E &minus; E<sub>BHS</sub>)/N</div></div>`;
+        `<div style="text-align:center;margin-top:2px">each point&rsquo;s share of (E &minus; E<sub>BHS</sub>)/N &middot; ${hint.replace("click", "click bar")}</div></div>`;
       return;
     }
     const vmax = VMAX[state.metric] * 100;
@@ -689,6 +695,9 @@ function cyclePalette() {
   PAL = PALETTES[PAL_KEY];
   YLORBR = PAL.stops;
   YLORBR_RGB = YLORBR.map(hex2rgb);
+  DIVERGING = PAL.div;
+  DIVERGING_RGB = DIVERGING.map(hex2rgb);
+  for (let i = 0; i < HEAT_LEVELS; i++) DIV_STR[i] = `rgb(${divRGB(2 * i / (HEAT_LEVELS - 1) - 1).join(",")})`;
   setDefectColors();
   for (let i = 0; i < HEAT_LEVELS; i++) HEAT_STR[i] = heatColor(i / (HEAT_LEVELS - 1));
   const qs = new URLSearchParams(location.search);
