@@ -28,8 +28,10 @@
   .seg .knob { position: absolute; top: 3px; bottom: 3px; border-radius: 13px; background: white; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .2s, width .2s; }
   label.disabled { color: #b0b5bd; }
   select, button { font: inherit; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: white; }
-  input[type=range] { width: 300px; }
-  .ticks { display: flex; justify-content: space-between; width: 300px; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  input[type=range] { width: 360px; }
+  #ntarget { display: inline-block; min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
+  .ticks { position: relative; height: 14px; width: 360px; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .ticks span { position: absolute; transform: translateX(-50%); }
   .row { display: grid; grid-template-columns: repeat(5, minmax(180px, 1fr)); gap: 14px; padding: 6px 28px 10px; align-items: start; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 10px 8px; position: relative; touch-action: pan-x pan-y; }
   .card.tz { border: 2.5px solid var(--tz); box-shadow: 0 0 0 4px rgba(10,107,31,.08); }
@@ -91,9 +93,9 @@
     </div>
   </div>
   <div class="control">
-    <label for="nslider">N &approx;<sup class="fn" data-fn="5">5</sup></label>
+    <label for="nslider">N &approx;<sup class="fn" data-fn="5">5</sup> <b id="ntarget"></b></label>
     <div>
-      <input id="nslider" type="range" min="0" max="7" step="1" value="5">
+      <input id="nslider" type="range" min="0" max="40" step="1" value="30">
       <div class="ticks" id="nticks"></div>
     </div>
   </div>

@@ -53,7 +53,9 @@ from smales7.evaluators.ring import rings_terraced_zonal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "data")
-TARGETS = [250, 500, 1000, 2000, 4000, 10000, 30000, 100000]
+# Slider positions: the R10 preferred numbers (10 per decade, roughly log-spaced) from 10 to 1e5.
+R10 = [1.0, 1.25, 1.6, 2.0, 2.5, 3.15, 4.0, 5.0, 6.3, 8.0]
+TARGETS = sorted({int(math.floor(m * 10 ** e + 0.5)) for e in range(1, 5) for m in R10} | {100_000})
 HIGH_TARGETS = [1_000_000, 10_000_000, 100_000_000]  # energies only
 EXACT_MAX = 1_000_000  # largest N for the exact O(N^2) pair sum (~12 min on 12 cores at 1e6)
 EWALD_C = 1.5  # as in smales7.large_n_benchmark
@@ -230,7 +232,12 @@ def main():
   manifest = {"targets": TARGETS, "constructions": []}
   for key, name, family, mod in CONSTRUCTIONS:
     entry = {"key": key, "name": name, "family": family, "files": {}}
+    by_n = {}  # several targets can share one admissible N (e.g. EqAreaIco at small N)
     for target in TARGETS:
+      n = int(mod.allowed_n(target))
+      if n in by_n:
+        entry["files"][str(target)] = dict(by_n[n])
+        continue
       n, pts = point_set(mod, target)
       sv = SphericalVoronoi(pts)
       sv.sort_vertices_of_regions()
@@ -278,7 +285,7 @@ def main():
         }
       with open(os.path.join(OUT, fname), "w") as f:
         json.dump(rec, f, separators=(",", ":"))
-      entry["files"][str(target)] = {"file": fname, "n": n, **energies(pts)}
+      entry["files"][str(target)] = by_n[n] = {"file": fname, "n": n, **energies(pts)}
       s = summary
       print(f"{name:18s} N={n:5d}  median aniso {100*s['median_aniso']:5.2f}%  "
             f"perim {100*s['median_perim']:5.2f}%  5:{s['n5']} 7:{s['n7']} other:{s['n_other']}")
@@ -296,6 +303,18 @@ def main():
           manifest["targets"] = sorted(set(manifest["targets"]) | {target})
   with open(path, "w") as f:
     json.dump(manifest, f, indent=1)
+  # Remove data files of earlier target lists that the manifest no longer references.
+  keep = {"manifest.json"}
+  for entry in manifest["constructions"]:
+    for info in entry["files"].values():
+      if "file" in info:
+        keep.add(info["file"])
+        base = info["file"][:-len(".json")]
+        keep.update(f"{base}_{s}" for s in ("pts.f32", "perim.f32", "aniso.f32", "deg.u8"))
+  for fname in sorted(os.listdir(OUT)):
+    if fname not in keep:
+      os.remove(os.path.join(OUT, fname))
+      print("removed stale", fname)
 
 
 if __name__ == "__main__":

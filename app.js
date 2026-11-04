@@ -327,7 +327,7 @@ function drawSphere(card, angle) {
     sy[i] = cy - rad * (x * U[0] + y * U[1] + z * U[2]);
   }
   const n = rec.n;
-  const lw = Math.max(0.15, 0.5 * Math.sqrt(1000 / n)) * (window.devicePixelRatio || 1);
+  const lw = Math.min(1.2, Math.max(0.15, 0.5 * Math.sqrt(1000 / n))) * (window.devicePixelRatio || 1);
   ctx.lineWidth = lw;
   ctx.strokeStyle = PAL.edge;
   for (let k = 0; k < n; k++) {
@@ -353,6 +353,9 @@ function drawSphereOverlay(ctx, n, rad, cx, cy) {
   ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 2 * Math.PI); ctx.stroke();
   const scale = Math.sqrt(n / (4 * Math.PI));
   const z = state.zoomScale;
+  // At small N (about N < 100) the box would cover most of the visible hemisphere,
+  // and the inset then shows all of it anyway: no box.
+  if (z * HALF_X / scale > 1.2) return;
   const bx = rad * Math.sin(z * HALF_X / scale), by = rad * Math.sin(z * HALF_Y / scale);
   ctx.strokeStyle = BOX_COLOR;
   ctx.lineWidth = 1.2 * (window.devicePixelRatio || 1);
@@ -478,7 +481,9 @@ function drawZoom(card, angle) {
   const nn = rotZ(U, -angle);
   const n = rec.n, scale = Math.sqrt(n / (4 * Math.PI));
   const px = w / (2 * HALF_X * state.zoomScale);
-  const rVis = 1.8 * state.zoomScale * Math.hypot(HALF_X, HALF_Y) / scale;
+  // Cells within angle rVis of the center are drawn; capped so that small N never
+  // reach the far side, where the azimuthal projection blows up.
+  const rVis = Math.min(2.0, 1.8 * state.zoomScale * Math.hypot(HALF_X, HALF_Y) / scale);
   const cosr = Math.cos(rVis);
   const patch = rec.large ? largeZoomPatch(rec, c, e, nn, scale, rVis) : null;
   const V = rec.large ? patch.verts : rec.verts, P = rec.pts;
@@ -565,6 +570,7 @@ function cyclePalette() {
 // are dimmed until it arrives.
 function previewN(tIdx) {
   state.tIdx = tIdx;
+  document.getElementById("ntarget").textContent = state.manifest.targets[tIdx].toLocaleString();
   if (state.manifest.targets[tIdx] > 10000) state.zoomScale = Math.min(state.zoomScale, 1.6);
   updateZoomLabel();
   state.cards.forEach(card => {
@@ -610,7 +616,8 @@ function setSpeed(speed) {
 }
 
 function updateZoomLabel() {
-  const cells = Math.round(4 * HALF_X * HALF_Y * state.zoomScale ** 2);
+  const target = state.manifest ? state.manifest.targets[state.tIdx] : Infinity;
+  const cells = Math.min(Math.round(4 * HALF_X * HALF_Y * state.zoomScale ** 2), Math.round(target / 2));
   document.getElementById("zoominfo").textContent =
     `Inset: about ${cells} cells around the center of view, so it zooms in as N grows. Drag a sphere to rotate it; scroll or pinch on an inset to zoom.`;
 }
@@ -682,8 +689,11 @@ async function main() {
   setupFootnotes();
   makeCards();
   const ticks = document.getElementById("nticks");
+  // Many slider stops: label only the powers of ten, placed at their stop positions.
   const fmt = v => v >= 1e6 ? (v / 1e6) + "M" : v >= 1000 ? (v / 1000) + "k" : String(v);
-  ticks.innerHTML = state.manifest.targets.map(t => `<span>${fmt(t)}</span>`).join("");
+  const nT = state.manifest.targets.length;
+  ticks.innerHTML = state.manifest.targets.map((t, i) => Math.log10(t) % 1 === 0
+    ? `<span style="left:calc(8px + (100% - 16px) * ${i / (nT - 1)})">${fmt(t)}</span>` : "").join("");
   const slider = document.getElementById("nslider");
   slider.max = String(state.manifest.targets.length - 1);
   // While dragging, labels and energies update at once; cell data loads only
@@ -803,7 +813,10 @@ async function main() {
   const qs = new URLSearchParams(location.search);
   let view = qs.get("view") || (qs.get("mode") === "defect" ? "defect" : qs.get("metric")) || "perim";
   if (!["perim", "aniso", "defect"].includes(view)) view = "perim";
-  if (qs.has("n")) slider.value = qs.get("n");
+  // ?n= is a slider index; the default is the stop nearest N = 10,000.
+  const tgts = state.manifest.targets;
+  const defaultIdx = tgts.reduce((b, t, i) => Math.abs(Math.log(t / 1e4)) < Math.abs(Math.log(tgts[b] / 1e4)) ? i : b, 0);
+  slider.value = qs.has("n") ? qs.get("n") : String(defaultIdx);
   if (qs.has("speed")) state.speed = qs.get("speed");
   if (qs.has("elev")) setElev(Number(qs.get("elev")) * Math.PI / 180);
   setView(view);
