@@ -28,6 +28,7 @@
   @media (max-width: 1200px) { .controls { display: flex; flex-wrap: wrap; } }
   .control { display: flex; align-items: center; gap: 10px; }
   .seg { position: relative; display: inline-flex; background: #e6e8ec; border-radius: 16px; padding: 3px; }
+  .seg button { white-space: nowrap; }
   .seg button { position: relative; z-index: 1; border: none; background: transparent; padding: 5px 14px; border-radius: 13px; cursor: pointer; color: var(--muted); }
   #speed button { display: inline-flex; align-items: center; padding: 6px 13px; }
   #speed svg { display: block; }
@@ -60,7 +61,9 @@
   .algo { font-family: system-ui, sans-serif; font-size: 11.5px; color: var(--ink); text-align: center; margin-top: 4px; padding-top: 5px; border-top: 1px solid #eceef1; line-height: 1.55; display: flex; flex-direction: column; align-items: center; }
   .algo .k { color: var(--muted); }
   .algo .q { color: var(--muted); font-size: 10.5px; }
-  .energy { font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; padding-top: 5px; border-top: 1px solid #eceef1; line-height: 1.5; }
+  canvas.hist { display: block; width: 86%; margin: 2px auto 0; }
+  .hlbl { display: flex; justify-content: space-between; width: 86%; margin: 0 auto; font-size: 10px; color: #9aa1ab; }
+  .energy { font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); text-align: center; margin: 2px 0 6px; min-height: 56px; line-height: 1.5; }
   .energy .gval { font-size: 17px; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; margin: 1px 0; }
   .energy.best .gval { font-weight: 700; }
   .energy .low { font-size: 10px; font-weight: 600; color: white; background: var(--ink); border-radius: 8px; padding: 1px 6px; vertical-align: 3px; }
@@ -80,6 +83,29 @@
   sup.fn { font-family: system-ui, sans-serif; font-size: 0.68em; font-weight: 600; color: var(--note); cursor: pointer; padding: 0 1px; margin-left: 1px; text-shadow: none; }
   sup.fn:hover, sup.fn:focus-visible { text-decoration: underline; outline: none; }
   .fntip { position: absolute; z-index: 10; display: none; max-width: 380px; background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.14); padding: 9px 12px; font-family: system-ui, sans-serif; font-size: 12px; line-height: 1.5; color: var(--ink); pointer-events: none; }
+  .codebtn { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; font: 13px system-ui, sans-serif; border: 1px solid var(--line); background: white; border-radius: 16px; padding: 6px 13px; cursor: pointer; color: var(--ink); }
+  .codebtn:hover { background: #f3f4f6; }
+  .cardcol { display: flex; flex-direction: column; min-width: 0; }  /* TerracedZonal card + code button */
+  .codewrap { text-align: center; margin-top: 12px; }
+  .modal { position: fixed; inset: 0; z-index: 50; background: rgba(20,24,30,.45); display: flex; align-items: center; justify-content: center; padding: 3vh 3vw; }
+  .modal[hidden] { display: none; }
+  .modal-box { background: white; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.3); width: min(1100px, 100%); max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; }
+  .modal-head { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; padding: 14px 18px 10px; border-bottom: 1px solid var(--line); font-family: system-ui, sans-serif; }
+  .modal-title { font-size: 16px; font-weight: 600; color: var(--ink); }
+  .modal-sub { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.45; }
+  .modal-actions { display: flex; gap: 8px; align-items: center; flex: 0 0 auto; }
+  .modal-actions button, .modal-actions a { font: 13px system-ui, sans-serif; border: 1px solid var(--line); background: white; border-radius: 6px; padding: 4px 10px; color: var(--ink); text-decoration: none; cursor: pointer; }
+  #codeclose { font-size: 18px; line-height: 1; padding: 2px 9px; }
+  pre.code { margin: 0; overflow: auto; padding: 12px 0; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: #fbfbfa; counter-reset: ln; tab-size: 2; }
+  pre.code .ln { display: block; padding: 0 18px 0 0; white-space: pre; }
+  pre.code .ln::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 3.2em; margin-right: 1.2em; text-align: right; color: #b3b8c0; user-select: none; }
+  .tok-com { color: #6a737d; font-style: italic; }
+  .tok-doc { color: #3f7d4e; }
+  .tok-paper { color: #5b3fc4; font-style: normal; font-weight: 600; }
+  .tok-kw { color: #a626a4; }
+  .tok-str { color: #b5651d; }
+  .tok-num { color: #1a6fb0; }
+  .tok-def { color: #0a6b1f; font-weight: 600; }
   footer { padding: 4px 28px 24px; color: var(--muted); font-size: 12px; font-family: system-ui, sans-serif; max-width: 1100px; line-height: 1.5; }
   footer ol { margin: 0; padding-left: 1.6em; }
   footer li { margin: 0 0 6px; padding: 2px 6px; border-radius: 5px; transition: background-color .6s; }
@@ -102,15 +128,16 @@
   <div class="control">
     <div class="seg" id="view" role="radiogroup" aria-label="Coloring">
       <div class="knob"></div>
-      <button data-view="perim" role="radio">Perimeter excess<sup class="fn" data-fn="3">3</sup></button>
-      <button data-view="aniso" role="radio">Cell anisotropy<sup class="fn" data-fn="4">4</sup></button>
-      <button data-view="defect" role="radio">Pentagons / heptagons<sup class="fn" data-fn="5">5</sup></button>
+      <button data-view="eng" role="radio">Energy per point<sup class="fn" data-fn="3">3</sup></button>
+      <button data-view="perim" role="radio">Perimeter excess<sup class="fn" data-fn="4">4</sup></button>
+      <button data-view="aniso" role="radio">Cell anisotropy<sup class="fn" data-fn="5">5</sup></button>
+      <button data-view="defect" role="radio">Pentagons / heptagons<sup class="fn" data-fn="6">6</sup></button>
     </div>
   </div>
   <div class="control">
-    <label for="nslider">N =<sup class="fn" data-fn="6">6</sup> <b id="ntarget"></b></label>
+    <label for="nslider">N =<sup class="fn" data-fn="7">7</sup> <b id="ntarget"></b></label>
     <div>
-      <input id="nslider" type="range" min="0" max="40" step="1" value="30">
+      <input id="nslider" type="range" min="0" max="80" step="1" value="53">
       <div class="ticks" id="nticks"></div>
     </div>
   </div>
@@ -126,18 +153,37 @@
 <div class="zoominfo" id="zoominfo"></div>
 
 <div class="row" id="row"></div>
+<div class="codewrap"><button id="codebtn" class="codebtn" aria-haspopup="dialog" title="Our Python implementation of TerracedZonal"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4 1.5 8l4 4M10.5 4l4 4-4 4"/></svg>Our Python Implementation</button></div>
 
 <footer>
   <ol>
     <li id="fn1"><b>Energy gap.</b> E = &sum;<sub>i&lt;j</sub> log(1/&Vert;x<sub>i</sub> &minus; x<sub>j</sub>&Vert;), each pair counted once. Cards show the gap per point (E &minus; E<sub>BHS</sub>)/N above the Brauchart&ndash;Hardin&ndash;Saff asymptotic energy E<sub>BHS</sub>; lower is better. Below it: E itself, summed exactly over all pairs. Paper: &sect;1 and App.&nbsp;A.1.</li>
     <li id="fn2"><b>Complexity and accuracy.</b> Complexity: time to generate the N points. Accuracy: how the excess E &minus; E<sub>BHS</sub> over the asymptotic energy (note 1) grows with N. TerracedZonal: Proposition&nbsp;3.1 and Theorem&nbsp;4.3 (under locality assumption (A)). Published constructions: complexity from their defining formulas; linear excess as measured in the paper&rsquo;s Table&nbsp;5 (App.&nbsp;F).</li>
-    <li id="fn3"><b>Perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of the regular spherical hexagon of the same area: 0 for a perfect cell, at least 2.4% for any pentagon. A geometric diagnostic, not an energy bound; cards show its mean and the share of cells above 1%. Paper: Fig.&nbsp;1 and App.&nbsp;B.1.</li>
-    <li id="fn4"><b>Cell anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell&rsquo;s second-moment tensor: how elongated the cell is (near 0 for regular pentagons and heptagons). Paper: App.&nbsp;B.1.</li>
-    <li id="fn5"><b>Pentagons / heptagons.</b> A cell&rsquo;s number of sides is its number of neighbors. By Euler&rsquo;s formula, &sum;(6 &minus; sides) = 12 on any sphere; 4 or 8+ sides get darker shades.</li>
-    <li id="fn6"><b>Admissible N.</b> The Fibonacci lattice is defined only for odd N, and EqAreaIco only for N = 10T + 2 with T = m<sup>2</sup> + mn + n<sup>2</sup>; at other N their cards show N/A. ZonalEQ, Hammersley, TerracedZonal and TZ-R take every N.</li>
-    <li id="fn7"><b>TZ-R</b> is a numerically optimized variant seeded by TerracedZonal (Riemannian L-BFGS with defect moves), shown only as a reference and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
+    <li id="fn3"><b>Energy per point.</b> Each point&rsquo;s share of the excess: &delta;<sub>i</sub> = &frac12;&sum;<sub>j&ne;i</sub> log(1/&Vert;x<sub>i</sub> &minus; x<sub>j</sub>&Vert;) &minus; E<sub>BHS</sub>/N (half of each pair&rsquo;s energy goes to each of its two points), summed exactly over all pairs. Its mean over the points is the card&rsquo;s gap per point (note 1); blue points lie below the asymptotic per-point energy, red points above. Each card&rsquo;s histogram uses the color bar&rsquo;s scale, the same for all cards (its end bins collect values beyond &plusmn;0.05; the triangle marks the mean). Colors saturate at &plusmn;0.05; values for single points include contributions from distant points (e.g. ripples in the density) that largely cancel in the total.</li>
+    <li id="fn4"><b>Perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of the regular spherical hexagon of the same area: 0 for a perfect cell, at least 2.4% for any pentagon. A geometric diagnostic, not an energy bound; cards show its mean and the share of cells above 1%. Paper: Fig.&nbsp;1 and App.&nbsp;B.1.</li>
+    <li id="fn5"><b>Cell anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell&rsquo;s second-moment tensor: how elongated the cell is (near 0 for regular pentagons and heptagons). Paper: App.&nbsp;B.1.</li>
+    <li id="fn6"><b>Pentagons / heptagons.</b> A cell&rsquo;s number of sides is its number of neighbors. By Euler&rsquo;s formula, &sum;(6 &minus; sides) = 12 on any sphere; 4 or 8+ sides get darker shades.</li>
+    <li id="fn7"><b>Admissible N.</b> The Fibonacci lattice is defined only for odd N, and EqAreaIco only for N = 10T + 2 with T = m<sup>2</sup> + mn + n<sup>2</sup>; at other N their cards show N/A. ZonalEQ, Hammersley, TerracedZonal and TZ-R take every N.</li>
+    <li id="fn8"><b>TZ-R</b> is a numerically optimized variant seeded by TerracedZonal (Riemannian L-BFGS with defect moves), shown only as a reference and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
   </ol>
 </footer>
+
+<div class="modal" id="codemodal" role="dialog" aria-modal="true" aria-labelledby="codetitle" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="codetitle">TerracedZonal<sub>Q</sub>: Python reference implementation</div>
+        <div class="modal-sub"><code>generalized_terraced_zonal_dp.py</code> &middot; NumPy only &middot; Q = 0 is the construction analyzed in the paper, Q = 96 the integration rule. Highlighted references in the comments (sections, equations, lines of Algorithm&nbsp;1, lemmas, tables) point to the matching parts of the paper.</div>
+      </div>
+      <div class="modal-actions">
+        <button id="codecopy">Copy</button>
+        <a id="codedl" href="code/generalized_terraced_zonal_dp.py" download>Download</a>
+        <button id="codeclose" aria-label="Close">&times;</button>
+      </div>
+    </div>
+    <pre class="code" id="codepre"><code>Loading&hellip;</code></pre>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

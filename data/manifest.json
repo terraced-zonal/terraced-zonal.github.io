@@ -86,7 +86,7 @@
   {
    "key": "fib",
    "name": "Fibonacci lattice",
-   "family": "Spiral (Swinbank\u2013Purser, odd N)",
+   "family": "Spiral",
    "files": {
     "10": {
      "na": "odd N only"

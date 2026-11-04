@@ -5,7 +5,7 @@
 const ELEV = 22 * Math.PI / 180;           // camera elevation above the equator
 const SPEEDS = { pause: 0, slow: 60, fast: 5 }; // seconds per revolution (0: paused)
 const HALF_X = 3.2, HALF_Y = 2.4;          // zoom window, in units of unit area per point
-const VMAX = { aniso: 0.20, perim: 0.07 }; // color-bar maxima
+const VMAX = { aniso: 0.20, perim: 0.07, eng: 0.05 }; // color-bar maxima (eng: symmetric, -0.05..+0.05)
 // Color schemes: heat-map stops, the pentagon / heptagon colors, and the
 // cell-boundary color. Clicking the legend's color bar (or the pentagon /
 // heptagon chips) cycles through PALETTE_ORDER; ?palette=A..E picks one.
@@ -68,6 +68,17 @@ function heatRGB(v) {
   return a.map((c, k) => Math.round(c + f * (b[k] - c)));
 }
 function heatColor(v) { return `rgb(${heatRGB(v).join(",")})`; }
+// Energy per point: diverging blue (below E_BHS/N) - white - red (above), centered at 0.
+const DIVERGING = ["#2166ac", "#67a9cf", "#d1e5f0", "#f7f7f7", "#fddbc7", "#ef8a62", "#b2182b"];
+const DIVERGING_RGB = DIVERGING.map(hex2rgb);
+function divRGB(v) {  // v in [-1, 1]
+  const x = (Math.max(-1, Math.min(1, v)) + 1) / 2 * (DIVERGING_RGB.length - 1);
+  const i = Math.min(Math.floor(x), DIVERGING_RGB.length - 2), f = x - i;
+  const a = DIVERGING_RGB[i], b = DIVERGING_RGB[i + 1];
+  return a.map((c, k) => Math.round(c + f * (b[k] - c)));
+}
+// Color of a value of the current heat-map metric.
+const metricRGB = v => state.metric === "eng" ? divRGB(v / VMAX.eng) : heatRGB(v / VMAX[state.metric]);
 const pack = ([r, g, b]) => ((255 << 24) | (b << 16) | (g << 8) | r) >>> 0;
 function defectColor(deg) {
   if (deg <= 3) return DEFECT[3];
@@ -83,9 +94,10 @@ async function fetchRecord(file) {
   const j = await r.json();
   if (j.large) {
     const bin = async (suffix, Type) => new Type(await (await fetch(`data/${j.bin}_${suffix}`)).arrayBuffer());
-    [j.pts, j.perim, j.aniso, j.deg] = await Promise.all([
+    [j.pts, j.perim, j.aniso, j.deg, j.eng] = await Promise.all([
       bin("pts.f32", Float32Array), bin("perim.f32", Float32Array),
-      bin("aniso.f32", Float32Array), bin("deg.u8", Uint8Array)]);
+      bin("aniso.f32", Float32Array), bin("deg.u8", Uint8Array),
+      j.eng_bin ? bin("eng.f32", Float32Array) : null]);
     j.band_verts = Float32Array.from(j.band_verts);
   } else {
     j.pts = Float32Array.from(j.pts);
@@ -140,10 +152,21 @@ function makeCards() {
       (c.key === "tz" ? '<div class="badge">this paper</div>' : "") +
       (c.reference ? '<div class="badge ref">reference</div>' : "") +
       `<div class="title">${c.name}</div>` +
-      `<div class="family">${c.family}${c.reference ? FN(7) : ""} &middot; <span class="nval"></span></div>` +
+      `<div class="family">${c.family}${c.reference ? FN(8) : ""} &middot; <span class="nval"></span></div>` +
+      '<div class="energy"></div>' +  // gap per point and E, above the sphere
       '<canvas class="sphere"></canvas><canvas class="zoom"></canvas>' +
-      '<div class="stats"></div>' + algoHTML(c.key) + '<div class="energy"></div>';
-    row.appendChild(card);
+      '<div class="stats"></div>' + algoHTML(c.key);
+    if (c.key === "tz") {
+      // TerracedZonal: the "Our Python Implementation" button sits right below its card.
+      const col = document.createElement("div");
+      col.className = "cardcol";
+      col.appendChild(card);
+      const code = document.querySelector(".codewrap");
+      if (code) col.appendChild(code);
+      row.appendChild(col);
+    } else {
+      row.appendChild(card);
+    }
     state.cards.push({ el: card, key: c.key, ref: !!c.reference, sphere: card.querySelector(".sphere"),
                        zoom: card.querySelector(".zoom"), stats: card.querySelector(".stats"),
                        energy: card.querySelector(".energy"), files: c.files,
@@ -167,8 +190,14 @@ function sizeCanvas(cv, aspect) {
 // continuous), so cells can be batched by color and no string is built per cell.
 const HEAT_LEVELS = 256;
 const HEAT_STR = Array.from({ length: HEAT_LEVELS }, (_, i) => heatColor(i / (HEAT_LEVELS - 1)));
+const DIV_STR = Array.from({ length: HEAT_LEVELS }, (_, i) => `rgb(${divRGB(2 * i / (HEAT_LEVELS - 1) - 1).join(",")})`);
 function cellColor(rec, k) {
   if (state.mode === "defect") return defectColor(rec.deg[k]);
+  if (state.metric === "eng") {
+    if (!rec.eng) return "#e9eaed";
+    const v = Math.max(-1, Math.min(1, rec.eng[k] / VMAX.eng));
+    return DIV_STR[Math.round((v + 1) / 2 * (HEAT_LEVELS - 1))];
+  }
   const v = Math.max(0, Math.min(1, rec[state.metric][k] / VMAX[state.metric]));
   return HEAT_STR[Math.round(v * (HEAT_LEVELS - 1))];
 }
@@ -207,7 +236,7 @@ function fmtSci(x, digits, shade) {
 }
 
 function updateEnergies() {
-  // The reference (TZ-R) is not ranked against the constructions (note 7).
+  // The reference (TZ-R) is not ranked against the constructions (note 8).
   const gaps = state.cards.filter(c => !c.ref).map(c => c.gap).filter(Number.isFinite);
   const best = gaps.length ? Math.min(...gaps) : NaN;
   state.cards.forEach(card => {
@@ -215,7 +244,7 @@ function updateEnergies() {
     const isBest = !card.ref && card.gap === best;
     card.energy.classList.toggle("best", isBest);
     card.energy.innerHTML =
-      `<div class="glbl">gap per point${FN(1)} (E &minus; E<sub>BHS</sub>)/N</div>` +
+      `<div class="glbl">gap per point${FN(1)}</div>` +
       `<div class="gval">${fmtSci(card.gap, GAP_DIGITS, true)}${isBest ? ' <span class="low">lowest</span>' : ""}</div>` +
       (Number.isFinite(card.E) ? `<div class="eraw">E = ${fmtSci(card.E, E_DIGITS, false)}</div>` : "");
   });
@@ -235,6 +264,10 @@ function updateStats() {
     } else {
       if (state.metric === "aniso") {
         card.stats.innerHTML = `mean anisotropy: <b>${(100 * s.mean_aniso).toFixed(2)}%</b>`;
+      } else if (state.metric === "eng") {
+        card.stats.innerHTML = rec.eng ? '<canvas class="hist"></canvas>' +
+          '<div class="hlbl"><span>&le;&minus;0.05</span><span>0</span><span>&ge;+0.05</span></div>' : "";
+        if (rec.eng) drawHist(card.stats.querySelector("canvas.hist"), rec, card.gap);
       } else {
         const f = 100 * s.frac_perim_gt1;
         card.stats.innerHTML = `mean perimeter excess: <b>${(100 * s.mean_perim).toFixed(2)}%</b>` +
@@ -242,6 +275,47 @@ function updateStats() {
       }
     }
   });
+}
+
+// Energy view: small histogram of the per-point values, on the same x-axis as the
+// color bar (-VMAX.eng .. +VMAX.eng, end bins collect everything beyond) for every
+// card; bars take the color of their bin, the tick marks the mean (= gap per point).
+const HIST_BINS = 40;
+function histogram(rec) {
+  if (rec._hist) return rec._hist;
+  const h = new Float64Array(HIST_BINS), vm = VMAX.eng;
+  for (let k = 0; k < rec.eng.length; k++) {
+    const b = Math.floor((rec.eng[k] + vm) / (2 * vm) * HIST_BINS);
+    h[Math.max(0, Math.min(HIST_BINS - 1, b))]++;
+  }
+  rec._hist = h;
+  return h;
+}
+function drawHist(cv, rec, mean) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth, h = 30;
+  cv.style.height = h + "px";
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const ctx = cv.getContext("2d");
+  ctx.scale(dpr, dpr);
+  // Height scale from the interior bins; the two end (overflow) bins are capped at full height.
+  const hist = histogram(rec), top = Math.max(1, ...hist.slice(1, -1)), bw = w / HIST_BINS;
+  for (let b = 0; b < HIST_BINS; b++) {
+    const bh = Math.min(1, hist[b] / top) * (h - 4);
+    if (bh <= 0) continue;
+    ctx.fillStyle = `rgb(${divRGB(((b + 0.5) / HIST_BINS) * 2 - 1).join(",")})`;
+    ctx.fillRect(b * bw + 0.5, h - 1 - bh, Math.max(1, bw - 1), bh);
+    ctx.strokeStyle = "rgba(0,0,0,.32)"; ctx.lineWidth = 0.5;
+    ctx.strokeRect(b * bw + 0.5, h - 1 - bh, Math.max(1, bw - 1), bh);
+  }
+  ctx.fillStyle = "#9aa1ab";
+  ctx.fillRect(0, h - 1, w, 1);                       // baseline
+  ctx.fillRect(w / 2 - 0.5, h - 4, 1, 4);             // zero
+  if (Number.isFinite(mean)) {                        // mean = the card's gap per point
+    const x = Math.max(0, Math.min(w, (mean + VMAX.eng) / (2 * VMAX.eng) * w));
+    ctx.fillStyle = "#1f2328";
+    ctx.beginPath(); ctx.moveTo(x, h - 1); ctx.lineTo(x - 3, h + 3 - 6); ctx.lineTo(x + 3, h + 3 - 6); ctx.fill();
+  }
 }
 
 // ------------------------------------------------------------- drawing ---
@@ -254,13 +328,13 @@ function rotZ(p, a) {
 function pointColors(rec) {
   const key = `${PAL_KEY}|${state.mode}|${state.metric}`;
   if (rec._ckey === key) return rec._colors;
-  const n = rec.n, out = new Uint32Array(n), vmax = VMAX[state.metric], vals = rec[state.metric];
+  const n = rec.n, out = new Uint32Array(n), vals = rec[state.metric];
   const defPacked = {};
   for (const d of [3, 4, 5, 6, 7, 8, 9]) defPacked[d] = pack(hex2rgb(DEFECT[d]));
   for (let k = 0; k < n; k++) {
     const d = Math.max(3, Math.min(9, rec.deg[k]));
     if (state.mode === "defect") out[k] = defPacked[d];
-    else out[k] = pack(heatRGB(vals[k] / vmax));
+    else out[k] = vals ? pack(metricRGB(vals[k])) : pack([233, 234, 237]);
   }
   rec._ckey = key;
   rec._colors = out;
@@ -591,6 +665,16 @@ function updateLegend() {
   if (state.mode === "defect") {
     el.innerHTML = `<div class="chips cycle" ${tip}>${chips}<span class="chip"><span style="background:${DEFECT[6]}"></span>6 (hexagon)</span>${hint}</div>`;
   } else {
+    if (state.metric === "eng") {
+      const vm = VMAX.eng;
+      const stops = DIVERGING.map((c, i) => `${c} ${(100 * i / (DIVERGING.length - 1)).toFixed(1)}%`).join(",");
+      const t = v => (v < 0 ? "\u2212" : v > 0 ? "+" : "") + Math.abs(v).toFixed(2);
+      const ticks = [-1, -0.5, 0, 0.5, 1].map(f => (f === -1 ? "\u2264" : f === 1 ? "\u2265" : "") + t(f * vm));
+      el.innerHTML = `<div class="colorbar"><div class="bar" style="background:linear-gradient(to right,${stops})"></div>` +
+        `<div class="lbl">${ticks.map(x => `<span>${x}</span>`).join("")}</div>` +
+        `<div style="text-align:center;margin-top:2px">each point&rsquo;s share of (E &minus; E<sub>BHS</sub>)/N</div></div>`;
+      return;
+    }
     const vmax = VMAX[state.metric] * 100;
     const stops = YLORBR.map((c, i) => `${c} ${(100 * i / (YLORBR.length - 1)).toFixed(1)}%`).join(",");
     const ticks = [0, 0.25, 0.5, 0.75, 1].map(f => (f === 1 ? "\u2265" : "") + (f * vmax).toFixed(f === 0 ? 0 : 1) + "%");
@@ -737,7 +821,89 @@ function setupFootnotes() {
   }, true);
 }
 
+// ------------------------------------------------------------- code ---
+// "Code" button: the annotated Python reference implementation in a pop-up,
+// with light syntax highlighting (comments, docstrings, "Paper:" pointers).
+const PY_KW = new Set(("def return for in if elif else while import from as not and or None " +
+  "True False continue break raise del lambda pass is with try except").split(" "));
+const PY_TOKEN = new RegExp([
+  '"""[\\s\\S]*?"""', "'''[\\s\\S]*?'''",            // docstrings
+  '"(?:\\\\.|[^"\\\\\\n])*"', "'(?:\\\\.|[^'\\\\\\n])*'",  // strings
+  "#[^\\n]*",                                           // comments
+  "\\b[A-Za-z_]\\w*\\b",                                // names and keywords
+  "\\b\\d+(?:\\.\\d+)?(?:e[-+]?\\d+)?\\b",              // numbers
+].join("|"), "g");
+const PAPER_REF = new RegExp([
+  "Algorithms? 1[ab]?(?: and 1b)?(?:, lines? \\d+(?:-\\d+)?)?", "[Ll]ines? \\d+(?:-\\d+)?",
+  "Sections? \\d+(?:\\.\\d+)?", "Appendix [A-H](?:\\.\\d+)?",
+  "eqs?\\. \\(\\d+\\)(?:-\\(\\d+\\))?", "Lemma [A-Z]?\\d+(?:\\.\\d+)?",
+  "Theorem \\d+\\.\\d+", "Proposition \\d+\\.\\d+", "Table \\d+",
+].join("|"), "g");
+function highlightPython(src) {
+  const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // References to the paper inside comments and docstrings.
+  const paper = t => t.replace(PAPER_REF, m => `<span class="tok-paper">${m}</span>`);
+  let out = "", last = 0, m, prev = "";
+  PY_TOKEN.lastIndex = 0;
+  while ((m = PY_TOKEN.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    const t = m[0];
+    if (t.startsWith('"""') || t.startsWith("'''")) out += `<span class="tok-doc">${paper(esc(t))}</span>`;
+    else if (t[0] === "#") out += `<span class="tok-com">${paper(esc(t))}</span>`;
+    else if (t[0] === '"' || t[0] === "'") out += `<span class="tok-str">${esc(t)}</span>`;
+    else if (/^\d/.test(t)) out += `<span class="tok-num">${t}</span>`;
+    else if (PY_KW.has(t)) out += `<span class="tok-kw">${t}</span>`;
+    else if (prev === "def") out += `<span class="tok-def">${t}</span>`;
+    else out += t;
+    if (/^\w/.test(t)) prev = t;
+    last = PY_TOKEN.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+// One block per line (for line numbers): spans open at a line break are closed
+// at the end of the line and reopened on the next.
+function wrapLines(html) {
+  const open = [], out = [];
+  for (const line of html.split("\n")) {
+    const prefix = open.join("");
+    for (const tag of line.match(/<span[^>]*>|<\/span>/g) || []) {
+      if (tag === "</span>") open.pop(); else open.push(tag);
+    }
+    out.push(`<span class="ln">${prefix}${line}${"</span>".repeat(open.length)}</span>`);
+  }
+  return out.join("");
+}
+function setupCode() {
+  const modal = document.getElementById("codemodal"), pre = document.getElementById("codepre");
+  let src = null;
+  const open = async () => {
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    document.getElementById("codeclose").focus();
+    if (src === null) {
+      src = await (await fetch("code/generalized_terraced_zonal_dp.py")).text();
+      pre.innerHTML = `<code>${wrapLines(highlightPython(src))}</code>`;
+    }
+  };
+  const close = () => {
+    modal.hidden = true;
+    document.body.style.overflow = "";
+    document.getElementById("codebtn").focus();
+  };
+  document.getElementById("codebtn").addEventListener("click", open);
+  document.getElementById("codeclose").addEventListener("click", close);
+  modal.addEventListener("click", ev => { if (ev.target === modal) close(); });
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !modal.hidden) close(); });
+  document.getElementById("codecopy").addEventListener("click", async ev => {
+    if (src === null) return;
+    try { await navigator.clipboard.writeText(src); ev.target.textContent = "Copied"; }
+    catch (_) { ev.target.textContent = "Copy failed"; }
+    setTimeout(() => { ev.target.textContent = "Copy"; }, 1500);
+  });
+}
+
 async function main() {
+  setupCode();
   state.manifest = await (await fetch("data/manifest.json")).json();
   initExponentRange();
   setupFootnotes();
@@ -865,11 +1031,13 @@ async function main() {
   window.addEventListener("resize", () => { setView(state.mode === "defect" ? "defect" : state.metric); setSpeed(state.speed); });
   // Optional URL parameters, e.g. ?view=defect&n=3 (legacy: mode=defect, metric=aniso)
   const qs = new URLSearchParams(location.search);
-  let view = qs.get("view") || (qs.get("mode") === "defect" ? "defect" : qs.get("metric")) || "perim";
-  if (!["perim", "aniso", "defect"].includes(view)) view = "perim";
-  // ?n= is a slider index; the default is the stop nearest N = 10,000.
+  // Default view: energy per point (?view= selects another).
+  let view = qs.get("view") || (qs.get("mode") === "defect" ? "defect" : qs.get("metric")) || "eng";
+  if (!["perim", "aniso", "defect", "eng"].includes(view)) view = "eng";
+  // ?n= is a slider index; the default is the stop nearest N = 4,482.
+  const DEFAULT_N = 4482;
   const tgts = state.manifest.targets;
-  const defaultIdx = tgts.reduce((b, t, i) => Math.abs(Math.log(t / 1e4)) < Math.abs(Math.log(tgts[b] / 1e4)) ? i : b, 0);
+  const defaultIdx = tgts.reduce((b, t, i) => Math.abs(Math.log(t / DEFAULT_N)) < Math.abs(Math.log(tgts[b] / DEFAULT_N)) ? i : b, 0);
   slider.value = qs.has("n") ? qs.get("n") : String(defaultIdx);
   if (qs.has("speed")) state.speed = qs.get("speed");
   if (qs.has("elev")) setElev(Number(qs.get("elev")) * Math.PI / 180);

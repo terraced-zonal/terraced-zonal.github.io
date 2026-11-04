@@ -32,6 +32,8 @@ Usage:
       (computes the HIGH_TARGETS energies into data/manifest.json)
   TZR_CACHE=<dir> PYTHONPATH=src python3 web/terraced_zonal_demo/build_data.py --only tzr
       (rebuilds only the TZ-R reference, reading precomputed point sets from <dir>)
+  PYTHONPATH=src python3 web/terraced_zonal_demo/build_data.py --per-point-energy
+      (adds each point's share of E - E_BHS, for the "Energy per point" view)
 """
 
 from __future__ import annotations
@@ -88,7 +90,7 @@ FULL_MAX = 10000  # targets above this: binary per-point data plus only the cell
 ELEV = math.radians(22.0)  # must match ELEV in app.js: the zoom center stays at this latitude
 ZOOM_R = 1.8 * math.hypot(3.2, 2.4)  # zoom cell-selection radius (app.js), in units of unit area per point
 CONSTRUCTIONS = [  # (key, display name, family, module)
-    ("fib", "Fibonacci lattice", "Spiral (Swinbank\u2013Purser, odd N)", fibonacci_lattice),
+    ("fib", "Fibonacci lattice", "Spiral", fibonacci_lattice),
     ("zonaleq", "ZonalEQ", "Zonal rings", zonal_equal_area),
     ("eqareaico", "EqAreaIco", "Polyhedral", equal_area_icosahedral),
     ("hammersley", "Hammersley", "Quasi-Monte Carlo", hammersley),
@@ -381,6 +383,130 @@ def main(only=None):
       print("removed stale", fname)
 
 
+# ------------------------------------------------------- per-point energy ---
+# For the "Energy per point" view: each point's share of the excess,
+#   delta_i = (1/2) sum_{j != i} -log ||x_i - x_j||  -  E_BHS / N,
+# whose mean over the points is exactly the card's gap per point (E - E_BHS)/N.
+# Full rows of the pair matrix, split into row blocks over a process pool with the
+# points in shared memory (as in smales7.evaluators.exact); pairs with squared
+# distance below 0.1 are recomputed from coordinate differences for accuracy.
+_PP_X = None
+_PP_SHM = None
+
+
+def _pp_init(name, shape):
+  global _PP_X, _PP_SHM
+  from multiprocessing import shared_memory
+  _PP_SHM = shared_memory.SharedMemory(name=name)
+  _PP_X = np.ndarray(shape, dtype=np.float64, buffer=_PP_SHM.buf)
+
+
+def _pp_rows(r0, r1, x=None):
+  """sum_{j != i} -log ||x_i - x_j|| for rows r0 <= i < r1."""
+  x = _PP_X if x is None else x
+  n = len(x)
+  norm2 = np.einsum("ij,ij->i", x, x)
+  out = np.empty(r1 - r0)
+  for i0 in range(r0, r1, 256):
+    i1 = min(r1, i0 + 256)
+    xr = x[i0:i1]
+    acc = np.zeros(i1 - i0)
+    for j0 in range(0, n, 8192):
+      j1 = min(n, j0 + 8192)
+      xc = x[j0:j1]
+      t = norm2[i0:i1, None] + norm2[None, j0:j1] - 2.0 * (xr @ xc.T)
+      rows, cols = np.nonzero(t < 0.1)
+      if rows.size:
+        d = xr[rows] - xc[cols]
+        t[rows, cols] = np.einsum("ij,ij->i", d, d)
+      lo, hi = max(i0, j0), min(i1, j1)  # self pairs: log 1 = 0
+      if lo < hi:
+        k = np.arange(lo, hi)
+        t[k - i0, k - j0] = 1.0
+      acc += np.log(t).sum(axis=1)
+    out[i0 - r0:i1 - r0] = -0.5 * acc
+  return out
+
+
+def per_point_gap(pts, workers=None):
+  """delta_i = e_i / 2 - E_BHS / N for every point (float64 array of length N)."""
+  from concurrent.futures import ProcessPoolExecutor
+  from multiprocessing import get_context, shared_memory
+  x = np.ascontiguousarray(pts, dtype=np.float64)
+  n = len(x)
+  if n <= 4096:
+    e = _pp_rows(0, n, x)
+  else:
+    workers = workers or max(1, (os.cpu_count() or 2) // 2)
+    block = max(256, -(-n // (8 * workers)))
+    shm = shared_memory.SharedMemory(create=True, size=x.nbytes)
+    try:
+      np.ndarray(x.shape, dtype=np.float64, buffer=shm.buf)[:] = x
+      env = {v: os.environ.get(v) for v in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS")}
+      for v in env:
+        os.environ[v] = "1"
+      try:
+        with ProcessPoolExecutor(max_workers=workers, mp_context=get_context("spawn"),
+                                 initializer=_pp_init, initargs=(shm.name, x.shape)) as pool:
+          starts = list(range(0, n, block))
+          parts = list(pool.map(_pp_rows, starts, [min(n, s + block) for s in starts]))
+      finally:
+        for v, val in env.items():
+          if val is None:
+            os.environ.pop(v, None)
+          else:
+            os.environ[v] = val
+      e = np.concatenate(parts)
+    finally:
+      shm.close()
+      shm.unlink()
+  with mpmath.workdps(40):
+    nn = mpmath.mpf(n)
+    c_bhs = (2 * mpmath.log(2) + mpmath.log(mpmath.mpf(2) / 3) / 2
+             + 3 * mpmath.log(mpmath.sqrt(mpmath.pi) / mpmath.gamma(mpmath.mpf(1) / 3)))
+    e_bhs_per_pt = float(((mpmath.mpf(1) / 2 - mpmath.log(2)) * nn * nn / 2
+                          - nn * mpmath.log(nn) / 4 + c_bhs * nn / 2) / nn)
+  return 0.5 * e - e_bhs_per_pt
+
+
+def per_point_energies(only=None):
+  """Adds delta_i to every data set: an "eng" array in the small JSON files, a
+  <base>_eng.f32 file next to the large ones (flag "eng_bin"), and summary
+  statistics; checks that the mean of delta_i equals the manifest's gap per point."""
+  with open(os.path.join(OUT, "manifest.json")) as f:
+    manifest = json.load(f)
+  mods = {key: mod for key, _, _, mod in CONSTRUCTIONS}
+  for entry in manifest["constructions"]:
+    if only and entry["key"] not in only:
+      continue
+    done = set()
+    for target, info in entry["files"].items():
+      if "file" not in info or info["file"] in done:
+        continue
+      done.add(info["file"])
+      t0 = time.time()
+      n, pts = point_set(mods[entry["key"]], int(target))
+      assert n == info["n"], (entry["key"], target, n, info["n"])
+      delta = per_point_gap(pts)
+      err = abs(float(np.mean(delta)) - info["excess"])
+      assert err < 1e-8, (entry["key"], n, float(np.mean(delta)), info["excess"])
+      path = os.path.join(OUT, info["file"])
+      with open(path) as f:
+        rec = json.load(f)
+      p5, p50, p95 = (float(v) for v in np.percentile(delta, [5, 50, 95]))
+      rec["summary"].update({"eng_mean": float(np.mean(delta)), "eng_p5": p5,
+                             "eng_median": p50, "eng_p95": p95})
+      if rec["large"]:
+        delta.astype("<f4").tofile(os.path.join(OUT, rec["bin"] + "_eng.f32"))
+        rec["eng_bin"] = True
+      else:
+        rec["eng"] = np.round(delta, 6).tolist()
+      with open(path, "w") as f:
+        json.dump(rec, f, separators=(",", ":"))
+      print(f"{entry['name']:18s} N={n:6d}  mean {np.mean(delta):.6e} (|err| {err:.1e})  "
+            f"5-95%: {p5:+.4f} .. {p95:+.4f}  [{time.time() - t0:.1f} s]", flush=True)
+
+
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
   parser.add_argument("--energies-only", action="store_true",
@@ -389,8 +515,12 @@ if __name__ == "__main__":
                       help="compute the HIGH_TARGETS energies into data/manifest.json")
   parser.add_argument("--only", nargs="+", metavar="KEY",
                       help="rebuild only these constructions (e.g. --only tzr)")
+  parser.add_argument("--per-point-energy", action="store_true",
+                      help="add each point's share of E - E_BHS to the data files (with --only: those keys)")
   args = parser.parse_args()
-  if args.high_n:
+  if args.per_point_energy:
+    per_point_energies(only=set(args.only) if args.only else None)
+  elif args.high_n:
     high_n()
   elif args.energies_only:
     energies_only()
