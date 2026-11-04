@@ -113,7 +113,9 @@ async function fetchRecord(file) {
 }
 
 // A construction that does not exist at a target N has no file there (its card shows N/A).
-const filesFor = tIdx => state.manifest.constructions.map(c => c.files[String(state.manifest.targets[tIdx])].file || null);
+// The TZ-R reference is loaded only while it is shown (checkbox above the cards).
+const filesFor = tIdx => state.manifest.constructions.map(c =>
+  (c.reference && !state.showRef) ? null : (c.files[String(state.manifest.targets[tIdx])].file || null));
 const isLoaded = tIdx => filesFor(tIdx).every(f => !f || state.loaded.has(f));
 
 function loadSet(tIdx) {
@@ -654,6 +656,7 @@ function drawNA(card) {
 
 function drawAll() {
   state.cards.forEach(card => {
+    if (card.ref && !state.showRef) return;
     if (card.na) { drawNA(card); return; }
     if (!card.rec) return;
     drawSphere(card, state.angle);
@@ -763,10 +766,8 @@ function setSpeed(speed) {
 }
 
 function updateZoomLabel() {
-  const target = state.manifest ? state.manifest.targets[state.tIdx] : Infinity;
-  const cells = Math.min(Math.round(4 * HALF_X * HALF_Y * state.zoomScale ** 2), Math.round(target / 2));
   document.getElementById("zoominfo").textContent =
-    `Inset: about ${cells} cells around the center of view, so it zooms in as N grows. Drag a sphere to rotate it; scroll or pinch on an inset to zoom.`;
+    "Drag a sphere to rotate it; scroll or pinch on an inset to zoom.";
 }
 
 // One three-way control: perim | aniso (heat maps) or defect.
@@ -911,12 +912,27 @@ function setupCode() {
   });
 }
 
+// Show or hide the TZ-R reference card (hidden by default; ?tzr=1 shows it).
+function setShowRef(on, init = false) {
+  state.showRef = !!on;
+  document.getElementById("showref").checked = state.showRef;
+  document.getElementById("row").classList.toggle("withref", state.showRef);
+  state.cards.forEach(c => { if (c.ref) c.el.hidden = !state.showRef; });
+  const qs = new URLSearchParams(location.search);
+  if (state.showRef) qs.set("tzr", "1"); else qs.delete("tzr");
+  history.replaceState(null, "", location.pathname + (qs.toString() ? "?" + qs : "") + location.hash);
+  if (!init) setN(state.tIdx);
+}
+
 async function main() {
   setupCode();
   state.manifest = await (await fetch("data/manifest.json")).json();
   initExponentRange();
   setupFootnotes();
   makeCards();
+  state.showRef = new URLSearchParams(location.search).get("tzr") === "1";
+  setShowRef(state.showRef, true);
+  document.getElementById("showref").addEventListener("change", ev => setShowRef(ev.target.checked));
   const ticks = document.getElementById("nticks");
   // Many slider stops: label only the powers of ten, placed at their stop positions.
   const fmt = v => v >= 1e6 ? (v / 1e6) + "M" : v >= 1000 ? (v / 1000) + "k" : String(v);

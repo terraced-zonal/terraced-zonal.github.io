@@ -40,7 +40,7 @@
   #ntarget { display: inline-block; min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
   .ticks { position: relative; height: 14px; width: 360px; color: var(--muted); font-size: 11px; margin-top: 2px; }
   .ticks span { position: absolute; transform: translateX(-50%); }
-  .row { display: grid; grid-template-columns: repeat(6, minmax(150px, 1fr)); gap: 14px; padding: 6px 28px 10px; align-items: start; }
+  .row { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 14px; padding: 6px 28px 10px; align-items: start; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 10px 8px; position: relative; touch-action: pan-x pan-y; }
   .card.tz { border: 2.5px solid var(--tz); box-shadow: 0 0 0 4px rgba(10,107,31,.08); }
   /* TZ-R: a reference, set apart from the five constructions by a gap and a dashed border. */
@@ -77,7 +77,9 @@
   .colorbar .bar.cycle:hover { box-shadow: 0 0 0 2px rgba(0,0,0,.15); }
   .cyclehint { color: #9aa1ab; font-size: 11px; white-space: nowrap; }
   .chip { display: inline-flex; align-items: center; gap: 6px; margin-right: 12px; white-space: nowrap; }
-  .zoominfo { padding: 0 28px 4px; font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); }
+  .inforow { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 28px 4px; }
+  .refopt { flex: 0 0 auto; font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .zoominfo { padding: 0; font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); }
   .chip span { width: 14px; height: 14px; border: 1px solid #666; display: inline-block; }
   /* Footnote markers: link-colored superscripts, distinct from math exponents. */
   sup.fn { font-family: system-ui, sans-serif; font-size: 0.68em; font-weight: 600; color: var(--note); cursor: pointer; padding: 0 1px; margin-left: 1px; text-shadow: none; }
@@ -111,7 +113,8 @@
   footer li { margin: 0 0 6px; padding: 2px 6px; border-radius: 5px; transition: background-color .6s; }
   footer li::marker { color: var(--note); font-weight: 600; }
   footer li.flash { background: #fff3c4; }
-  @media (max-width: 1100px) { .row { grid-template-columns: repeat(3, 1fr); } .card.ref { margin-left: 0; } .card.ref::before { display: none; } }
+  .row.withref { grid-template-columns: repeat(6, minmax(150px, 1fr)); }  /* with the TZ-R reference */
+  @media (max-width: 1100px) { .row, .row.withref { grid-template-columns: repeat(3, 1fr); } .card.ref { margin-left: 0; } .card.ref::before { display: none; } }
   @media (max-width: 700px) { .row { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
@@ -119,7 +122,7 @@
 <header>
   <div class="intro">
   <h1>A Linear-Time Construction on &#x1D54A;<sup>2</sup> Achieving a Sublinear Energy Gap on Smale&rsquo;s Seventh Problem</h1>
-  <p>Four published constructions and <b>TerracedZonal</b>, with every point's Voronoi cell colored by how far it is from a regular hexagon. The sphere turns slowly; the framed panel below each sphere is an equal-area zoom of the boxed region at the center of view, scaled to unit area per point. At the far right, TZ-R shows how far numerical optimization started from TerracedZonal gets. Each card also gives the configuration's energy gap per point above the asymptotic optimum<sup class="fn" data-fn="1">1</sup>, with the lowest of the five constructions at each N marked, and states each algorithm&rsquo;s complexity and accuracy<sup class="fn" data-fn="2">2</sup>.</p>
+  <p><b>TerracedZonal</b> and four prior constructions at the same N. Each point&rsquo;s Voronoi cell is colored by its share of the energy or, in the other views, by the shape of its cell. Each algorithm card notes the algorithm&rsquo;s exact energy gap<sup class="fn" data-fn="1">1</sup> per point for the given N and the algorithm&rsquo;s asymptotic complexity and accuracy<sup class="fn" data-fn="2">2</sup>.</p>
   </div>
   <div class="legend" id="legend"></div>
 </header>
@@ -150,7 +153,7 @@
     </div>
   </div>
 </div>
-<div class="zoominfo" id="zoominfo"></div>
+<div class="inforow"><div class="zoominfo" id="zoominfo"></div><label class="refopt"><input type="checkbox" id="showref"> show <b>TZ-R</b>, a slow optimization-based method that uses TerracedZonal as an initialization<sup class="fn" data-fn="8">8</sup></label></div>
 
 <div class="row" id="row"></div>
 <div class="codewrap"><button id="codebtn" class="codebtn" aria-haspopup="dialog" title="Our Python implementation of TerracedZonal"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4 1.5 8l4 4M10.5 4l4 4-4 4"/></svg>Our Python Implementation</button></div>
@@ -164,7 +167,7 @@
     <li id="fn5"><b>Cell anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell&rsquo;s second-moment tensor: how elongated the cell is (near 0 for regular pentagons and heptagons). Paper: App.&nbsp;B.1.</li>
     <li id="fn6"><b>Pentagons / heptagons.</b> A cell&rsquo;s number of sides is its number of neighbors. By Euler&rsquo;s formula, &sum;(6 &minus; sides) = 12 on any sphere; 4 or 8+ sides get darker shades.</li>
     <li id="fn7"><b>Admissible N.</b> The Fibonacci lattice is defined only for odd N, and EqAreaIco only for N = 10T + 2 with T = m<sup>2</sup> + mn + n<sup>2</sup>; at other N their cards show N/A. ZonalEQ, Hammersley, TerracedZonal and TZ-R take every N.</li>
-    <li id="fn8"><b>TZ-R</b> is a numerically optimized variant seeded by TerracedZonal (Riemannian L-BFGS with defect moves), shown only as a reference and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
+    <li id="fn8"><b>TZ-R</b> is a slow optimization-based method that uses TerracedZonal as an initialization (Riemannian L-BFGS with defect moves), shown only as a reference (hidden unless the checkbox above the cards is ticked) and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
   </ol>
 </footer>
 
