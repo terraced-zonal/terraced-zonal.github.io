@@ -30,6 +30,8 @@ Usage:
       (recomputes only the energies and gaps in data/manifest.json)
   PYTHONPATH=src python3 web/terraced_zonal_demo/build_data.py --high-n
       (computes the HIGH_TARGETS energies into data/manifest.json)
+  TZR_CACHE=<dir> PYTHONPATH=src python3 web/terraced_zonal_demo/build_data.py --only tzr
+      (rebuilds only the TZ-R reference, reading precomputed point sets from <dir>)
 """
 
 from __future__ import annotations
@@ -68,7 +70,31 @@ CONSTRUCTIONS = [  # (key, display name, family, module)
     ("eqareaico", "EqAreaIco", "Polyhedral", equal_area_icosahedral),
     ("hammersley", "Hammersley", "Quasi-Monte Carlo", hammersley),
     ("tz", "TerracedZonal", "This paper", terraced_zonal_dp),
+    ("tzr", "TZ-R", "Optimized reference", None),  # module: TZR below
 ]
+REFERENCE_KEYS = {"tzr"}  # shown apart from the constructions and not ranked against them
+
+
+class TZR:
+  """TZ-R (smales7.algorithms.terraced_zonal_full): Riemannian L-BFGS plus defect moves,
+  seeded by TerracedZonal. Accepts every N. Its runs take seconds to minutes per N, so
+  point sets are read from $TZR_CACHE/tzr_<n>.npy when present."""
+
+  @staticmethod
+  def allowed_n(target):
+    return int(target)
+
+  @staticmethod
+  def construct(n):
+    cache = os.environ.get("TZR_CACHE")
+    path = os.path.join(cache, f"tzr_{n}.npy") if cache else None
+    if path and os.path.exists(path):
+      return np.load(path)
+    from smales7.algorithms import terraced_zonal_full
+    return terraced_zonal_full.construct(n)
+
+
+CONSTRUCTIONS = [(k, name, fam, mod if mod is not None else TZR) for k, name, fam, mod in CONSTRUCTIONS]
 
 
 def tangent_frame(c):
@@ -227,11 +253,23 @@ def energies_only():
     json.dump(manifest, f, indent=1)
 
 
-def main():
+def main(only=None):
+  """Builds every construction, or only the keys in ``only`` (keeping the other entries of
+  the existing manifest, which must then be built for the same TARGETS)."""
   os.makedirs(OUT, exist_ok=True)
   manifest = {"targets": TARGETS, "constructions": []}
+  previous = {}
+  if only and os.path.exists(os.path.join(OUT, "manifest.json")):
+    with open(os.path.join(OUT, "manifest.json")) as f:
+      previous = {e["key"]: e for e in json.load(f)["constructions"]}
   for key, name, family, mod in CONSTRUCTIONS:
+    if only and key not in only:
+      if key in previous:
+        manifest["constructions"].append(previous[key])
+      continue
     entry = {"key": key, "name": name, "family": family, "files": {}}
+    if key in REFERENCE_KEYS:
+      entry["reference"] = True
     by_n = {}  # several targets can share one admissible N (e.g. EqAreaIco at small N)
     for target in TARGETS:
       n = int(mod.allowed_n(target))
@@ -323,10 +361,12 @@ if __name__ == "__main__":
                       help="only recompute the energies in data/manifest.json")
   parser.add_argument("--high-n", action="store_true",
                       help="compute the HIGH_TARGETS energies into data/manifest.json")
+  parser.add_argument("--only", nargs="+", metavar="KEY",
+                      help="rebuild only these constructions (e.g. --only tzr)")
   args = parser.parse_args()
   if args.high_n:
     high_n()
   elif args.energies_only:
     energies_only()
   else:
-    main()
+    main(only=set(args.only) if args.only else None)

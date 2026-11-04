@@ -20,10 +20,17 @@
   .affils { font-size: 12px; color: var(--muted); margin: 0 0 10px; font-family: system-ui, sans-serif; }
   .authors sup, .affils sup { font-size: 0.7em; }
   header p { margin: 0; color: var(--muted); font-size: 14px; max-width: 980px; line-height: 1.45; }
-  .controls { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; padding: 14px 28px; font-family: system-ui, sans-serif; font-size: 13px; }
+  .controls { display: grid; grid-template-columns: 1fr auto 1fr; gap: 22px; align-items: center; padding: 14px 28px; font-family: system-ui, sans-serif; font-size: 13px; }
+  /* views left, N slider centered, spin speed right next to the slider */
+  .controls > .control:nth-child(1) { justify-self: start; }
+  .controls > .control:nth-child(2) { justify-self: center; }
+  .controls > .control:nth-child(3) { justify-self: start; }
+  @media (max-width: 1200px) { .controls { display: flex; flex-wrap: wrap; } }
   .control { display: flex; align-items: center; gap: 10px; }
   .seg { position: relative; display: inline-flex; background: #e6e8ec; border-radius: 16px; padding: 3px; }
   .seg button { position: relative; z-index: 1; border: none; background: transparent; padding: 5px 14px; border-radius: 13px; cursor: pointer; color: var(--muted); }
+  #speed button { display: inline-flex; align-items: center; padding: 6px 13px; }
+  #speed svg { display: block; }
   .seg button.active { color: var(--ink); text-shadow: 0 0 .6px currentColor; }
   .seg .knob { position: absolute; top: 3px; bottom: 3px; border-radius: 13px; background: white; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .2s, width .2s; }
   label.disabled { color: #b0b5bd; }
@@ -32,9 +39,13 @@
   #ntarget { display: inline-block; min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
   .ticks { position: relative; height: 14px; width: 360px; color: var(--muted); font-size: 11px; margin-top: 2px; }
   .ticks span { position: absolute; transform: translateX(-50%); }
-  .row { display: grid; grid-template-columns: repeat(5, minmax(180px, 1fr)); gap: 14px; padding: 6px 28px 10px; align-items: start; }
+  .row { display: grid; grid-template-columns: repeat(6, minmax(150px, 1fr)); gap: 14px; padding: 6px 28px 10px; align-items: start; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 10px 8px; position: relative; touch-action: pan-x pan-y; }
   .card.tz { border: 2.5px solid var(--tz); box-shadow: 0 0 0 4px rgba(10,107,31,.08); }
+  /* TZ-R: a reference, set apart from the five constructions by a gap and a dashed border. */
+  .card.ref { border: 2px dashed #6fae7c; margin-left: 14px; }
+  .card.ref::before { content: ""; position: absolute; left: -23px; top: 8px; bottom: 8px; border-left: 1px solid var(--line); }
+  .badge.ref { background: white; color: #3f7d4e; border: 1px solid #6fae7c; }
   .badge { position: absolute; top: -11px; right: 10px; background: var(--tz); color: white; font-family: system-ui, sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
   .title { font-size: 16px; text-align: center; }
   .family { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 4px; font-family: system-ui, sans-serif; }
@@ -45,6 +56,9 @@
   .card canvas, .card .stats { transition: opacity .15s; }
   .card.loading canvas, .card.loading .stats { opacity: .35; }
   .stats { font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); text-align: center; margin-top: 6px; min-height: 2.6em; }
+  .algo { font-family: system-ui, sans-serif; font-size: 11.5px; color: var(--ink); text-align: center; margin-top: 4px; padding-top: 5px; border-top: 1px solid #eceef1; line-height: 1.55; display: flex; flex-direction: column; align-items: center; }
+  .algo .k { color: var(--muted); }
+  .algo .q { color: var(--muted); font-size: 10.5px; }
   .energy { font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; padding-top: 5px; border-top: 1px solid #eceef1; line-height: 1.5; }
   .energy .gval { font-size: 17px; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; margin: 1px 0; }
   .energy.best .gval { font-weight: 700; }
@@ -70,7 +84,7 @@
   footer li { margin: 0 0 6px; padding: 2px 6px; border-radius: 5px; transition: background-color .6s; }
   footer li::marker { color: var(--note); font-weight: 600; }
   footer li.flash { background: #fff3c4; }
-  @media (max-width: 1100px) { .row { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 1100px) { .row { grid-template-columns: repeat(3, 1fr); } .card.ref { margin-left: 0; } .card.ref::before { display: none; } }
   @media (max-width: 700px) { .row { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
@@ -78,7 +92,7 @@
 <header>
   <div class="intro">
   <h1>A Linear-Time Construction on &#x1D54A;<sup>2</sup> Achieving a Sublinear Energy Gap on Smale&rsquo;s Seventh Problem</h1>
-  <p>Four published constructions and <b>TerracedZonal</b> (right), with every point's Voronoi cell colored by how far it is from a regular hexagon. The sphere turns slowly; the framed panel below each sphere is an equal-area zoom of the boxed region at the center of view, scaled to unit area per point. Each card also gives the configuration's energy gap per point above the asymptotic optimum<sup class="fn" data-fn="1">1</sup>, with the lowest at each N marked.</p>
+  <p>Four published constructions and <b>TerracedZonal</b>, with every point's Voronoi cell colored by how far it is from a regular hexagon. The sphere turns slowly; the framed panel below each sphere is an equal-area zoom of the boxed region at the center of view, scaled to unit area per point. At the far right, TZ-R shows how far numerical optimization started from TerracedZonal gets. Each card also gives the configuration's energy gap per point above the asymptotic optimum<sup class="fn" data-fn="1">1</sup>, with the lowest of the five constructions at each N marked.</p>
   </div>
   <div class="legend" id="legend"></div>
 </header>
@@ -102,9 +116,9 @@
   <div class="control">
     <div class="seg" id="speed" role="radiogroup" aria-label="Spin speed">
       <div class="knob"></div>
-      <button data-speed="pause" role="radio">Pause</button>
-      <button data-speed="slow" role="radio">Slow</button>
-      <button data-speed="fast" role="radio">Fast</button>
+      <button data-speed="pause" role="radio" aria-label="Pause" title="Pause"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor"><rect x="3" y="2.5" width="3.6" height="11" rx="0.8"/><rect x="9.4" y="2.5" width="3.6" height="11" rx="0.8"/></svg></button>
+      <button data-speed="slow" role="radio" aria-label="Play (slow spin)" title="Play"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M4 2.3v11.4c0 .5.6.8 1 .5l8.6-5.7c.4-.3.4-.8 0-1.1L5 1.8c-.4-.3-1 0-1 .5z"/></svg></button>
+      <button data-speed="fast" role="radio" aria-label="Fast forward (fast spin)" title="Fast forward"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M1 3v10c0 .5.6.8 1 .5l6.2-5c.3-.3.3-.7 0-1L2 2.5c-.4-.3-1 0-1 .5z"/><path d="M8 3v10c0 .5.6.8 1 .5l6.2-5c.3-.3.3-.7 0-1L9 2.5c-.4-.3-1 0-1 .5z"/></svg></button>
     </div>
   </div>
 </div>
@@ -114,11 +128,13 @@
 
 <footer>
   <ol>
-    <li id="fn1"><b>Energy gap.</b> The logarithmic energy is E = &sum;<sub>i&lt;j</sub> log(1/&Vert;x<sub>i</sub> &minus; x<sub>j</sub>&Vert;), with each pair of points counted once (half of the double-counted sum over i &ne; j used in some references). E is dominated by N<sup>2</sup> and N&thinsp;log&thinsp;N terms that every well-spread configuration shares, so the cards compare the gap per point (E &minus; E<sub>BHS</sub>)/N above the Brauchart&ndash;Hardin&ndash;Saff asymptotic energy E<sub>BHS</sub> = &frac12;(&frac12; &minus; log 2)N<sup>2</sup> &minus; &frac14;N&thinsp;log&thinsp;N + &frac12;C<sub>BHS</sub>N, where C<sub>BHS</sub> = 2&thinsp;log 2 + &frac12;log&thinsp;&frac23; + 3&thinsp;log(&radic;&pi;/&Gamma;(&frac13;)) &asymp; &minus;0.0556 is the conjectured optimal constant. Lower is better. Dividing by N makes cards comparable when their N differs slightly (note 5), and a gap per point that keeps shrinking as N grows is a sublinear total gap. The exponent is shaded darker the smaller it is. Below the gap is the energy E itself to 12 significant digits, computed exactly over all N(N &minus; 1)/2 pairs; raw energies are comparable only at equal N.</li>
-    <li id="fn2"><b>Perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of a regular spherical hexagon with the cell&rsquo;s area: 0 for a perfect cell and at least 2.4% for any pentagon. Why the perimeter: the Voronoi cells of the triangular lattice are regular hexagons, which have the least perimeter of any partition of the plane into equal areas (Hales&rsquo;s honeycomb theorem, 2001), and the triangular lattice also minimizes the lattice energies behind the conjectured optimal logarithmic energy (Rankin 1953; Cassels 1959; Montgomery 1988; Sandier&ndash;Serfaty 2012; B&eacute;termin&ndash;Sandier 2018). It is a geometric diagnostic: no theorem bounds the energy by it, but its mean tracks the energy gap closely across these constructions. Cards report the mean (the energy is a sum over points) and the share of cells more than 1% above P<sub>hex</sub> (how concentrated the distortion is).</li>
-    <li id="fn3"><b>Cell anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell&rsquo;s second-moment tensor measures elongation: it picks up sheared or stretched hexagons, while a nearly regular pentagon or heptagon scores low.</li>
-    <li id="fn4"><b>Pentagons / heptagons.</b> Two cells are neighbors if they share an edge, so a cell&rsquo;s number of neighbors is its number of sides: 6 for a hexagon, 5 for a pentagon, 7 for a heptagon. On any sphere the sum of (6 &minus; sides) over all cells is 12 (Euler&rsquo;s formula), so when every cell has 5 to 7 sides there are exactly 12 more pentagons than heptagons. Cells with 4 or 8+ sides get darker shades of the two colors.</li>
-    <li id="fn5"><b>Admissible N.</b> Not every construction exists at every N: the Fibonacci lattice here takes odd N, and EqAreaIco takes N = 10T + 2 with T = m<sup>2</sup> + mn + n<sup>2</sup>. Each construction uses the admissible N nearest the slider value (shown on its card); ZonalEQ, Hammersley and TerracedZonal use the slider value itself.</li>
+    <li id="fn1"><b>Energy gap.</b> E = &sum;<sub>i&lt;j</sub> log(1/&Vert;x<sub>i</sub> &minus; x<sub>j</sub>&Vert;), each pair counted once. Cards show the gap per point (E &minus; E<sub>BHS</sub>)/N above the Brauchart&ndash;Hardin&ndash;Saff asymptotic energy E<sub>BHS</sub>; lower is better, and dividing by N makes slightly different N comparable. Below it: E itself, summed exactly over all pairs. Paper: &sect;1 and App.&nbsp;A.1.</li>
+    <li id="fn2"><b>Perimeter excess</b> P/P<sub>hex</sub> &minus; 1, where P<sub>hex</sub> is the perimeter of the regular spherical hexagon of the same area: 0 for a perfect cell, at least 2.4% for any pentagon. A geometric diagnostic, not an energy bound; cards show its mean and the share of cells above 1%. Paper: Fig.&nbsp;1 and App.&nbsp;B.1.</li>
+    <li id="fn3"><b>Cell anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell&rsquo;s second-moment tensor: how elongated the cell is (near 0 for regular pentagons and heptagons). Paper: App.&nbsp;B.1.</li>
+    <li id="fn4"><b>Pentagons / heptagons.</b> A cell&rsquo;s number of sides is its number of neighbors. By Euler&rsquo;s formula, &sum;(6 &minus; sides) = 12 on any sphere; 4 or 8+ sides get darker shades.</li>
+    <li id="fn5"><b>Admissible N.</b> Each construction uses its admissible N nearest the slider value (odd N for the Fibonacci lattice, N = 10T + 2 for EqAreaIco).</li>
+    <li id="fn6"><b>TZ-R</b> is a numerically optimized variant seeded by TerracedZonal (Riemannian L-BFGS with defect moves), shown only as a reference and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
+    <li id="fn7"><b>Complexity and accuracy.</b> Complexity: time to generate the N points. Accuracy: growth of E &minus; E<sub>BHS</sub>. TerracedZonal: Proposition&nbsp;3.1 and Theorem&nbsp;4.3 (under locality assumption (A)). Published constructions: complexity from their defining formulas; linear excess as measured in the paper&rsquo;s Table&nbsp;5 (App.&nbsp;F).</li>
   </ol>
 </footer>
 
