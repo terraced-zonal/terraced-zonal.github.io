@@ -40,7 +40,14 @@
   #ntarget { display: inline-block; min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
   .ticks { position: relative; height: 14px; width: 360px; color: var(--muted); font-size: 11px; margin-top: 2px; }
   .ticks span { position: absolute; transform: translateX(-50%); }
-  .row { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 14px; padding: 6px 28px 10px; align-items: start; }
+  .row { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); column-gap: 14px; row-gap: 0; padding: 6px 28px 0; align-items: start; }
+  /* Each card is a subgrid of 7 shared rows (title, family, energy, sphere, zoom, stats,
+     algo), so the spheres, zoom panels and algorithm rows stay aligned across cards even
+     when one card is N/A or has a wrapped subtitle; the TerracedZonal column adds an 8th
+     row for the code button. */
+  .row > .card, .cardcol > .card { display: grid; grid-template-rows: subgrid; grid-template-columns: minmax(0, 1fr); grid-row: span 7; }
+  .row > .card, .cardcol, .cardcol > .card { margin-bottom: 14px; }
+  .card[hidden] { display: none; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 10px 8px; position: relative; touch-action: pan-x pan-y; }
   .card.tz { border: 2.5px solid var(--tz); box-shadow: 0 0 0 4px rgba(10,107,31,.08); }
   /* TZ-R: a reference, set apart from the five constructions by a gap and a dashed border. */
@@ -63,7 +70,7 @@
   .algo .q { color: var(--muted); font-size: 10.5px; }
   canvas.hist { display: block; width: 86%; margin: 2px auto 0; }
   .hlbl { display: flex; justify-content: space-between; width: 86%; margin: 0 auto; font-size: 10px; color: #9aa1ab; }
-  .energy { font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); text-align: center; margin: 2px 0 6px; min-height: 56px; line-height: 1.5; }
+  .energy { font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); text-align: center; margin: 0 0 6px; min-height: 56px; line-height: 1.5; }
   .energy .gval { font-size: 17px; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; margin: 1px 0; }
   .energy.best .gval { font-weight: 700; }
   .energy .low { font-size: 10px; font-weight: 600; color: white; background: var(--ink); border-radius: 8px; padding: 1px 6px; vertical-align: 3px; }
@@ -87,8 +94,8 @@
   .fntip { position: absolute; z-index: 10; display: none; max-width: 380px; background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.14); padding: 9px 12px; font-family: system-ui, sans-serif; font-size: 12px; line-height: 1.5; color: var(--ink); pointer-events: none; }
   .codebtn { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; font: 13px system-ui, sans-serif; border: 1px solid var(--line); background: white; border-radius: 16px; padding: 6px 13px; cursor: pointer; color: var(--ink); }
   .codebtn:hover { background: #f3f4f6; }
-  .cardcol { display: flex; flex-direction: column; min-width: 0; }  /* TerracedZonal card + code button */
-  .codewrap { text-align: center; margin-top: 12px; }
+  .cardcol { display: grid; grid-template-rows: subgrid; grid-row: span 8; min-width: 0; }  /* TerracedZonal card + code button */
+  .codewrap { text-align: center; margin-top: -2px; }  /* 12px below the card, after its 14px margin */
   .modal { position: fixed; inset: 0; z-index: 50; background: rgba(20,24,30,.45); display: flex; align-items: center; justify-content: center; padding: 3vh 3vw; }
   .modal[hidden] { display: none; }
   .modal-box { background: white; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.3); width: min(1100px, 100%); max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; }
