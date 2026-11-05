@@ -85,6 +85,7 @@
   .cyclehint { color: #9aa1ab; font-size: 11px; white-space: nowrap; }
   .chip { display: inline-flex; align-items: center; gap: 6px; margin-right: 12px; white-space: nowrap; }
   .inforow { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 28px 4px; }
+  .refrow { display: flex; justify-content: flex-end; padding: 0 28px 6px; }
   .refopt { flex: 0 0 auto; font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); cursor: pointer; }
   .zoominfo { padding: 0; font-family: system-ui, sans-serif; font-size: 12px; color: var(--muted); }
   .chip span { width: 14px; height: 14px; border: 1px solid #666; display: inline-block; }
@@ -162,9 +163,10 @@
     </div>
   </div>
 </div>
-<div class="inforow"><div class="zoominfo" id="zoominfo"></div><label class="refopt"><input type="checkbox" id="showref"> show <b>TZ-R</b>, a slow optimization-based method that uses TerracedZonal as an initialization<sup class="fn" data-fn="8">8</sup></label></div>
+<div class="inforow"><div class="zoominfo" id="zoominfo"></div></div>
 
 <div class="row" id="row"></div>
+<div class="refrow"><label class="refopt"><input type="checkbox" id="showref"> show <b>TZ-R</b>, a slow optimization-based method that uses TerracedZonal as an initialization<sup class="fn" data-fn="8">8</sup></label></div>  <!-- below the cards -->
 <div class="codewrap"><button id="codebtn" class="codebtn" aria-haspopup="dialog" title="Our Python implementation of TerracedZonal"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4 1.5 8l4 4M10.5 4l4 4-4 4"/></svg>Our Python Implementation</button></div>
 
 <footer>
@@ -176,7 +178,7 @@
     <li id="fn5"><b>Cell anisotropy</b> &radic;(&lambda;<sub>max</sub>/&lambda;<sub>min</sub>) &minus; 1 of the cell&rsquo;s second-moment tensor: how elongated the cell is (near 0 for regular pentagons and heptagons). Paper: App.&nbsp;B.1.</li>
     <li id="fn6"><b>Pentagons / heptagons.</b> A cell&rsquo;s number of sides is its number of neighbors. By Euler&rsquo;s formula, &sum;(6 &minus; sides) = 12 on any sphere; 4 or 8+ sides get darker shades.</li>
     <li id="fn7"><b>Admissible N.</b> The Fibonacci lattice is defined only for odd N, and EqAreaIco only for N = 10T + 2 with T = m<sup>2</sup> + mn + n<sup>2</sup>; at other N their cards show N/A. ZonalEQ, Hammersley, TerracedZonal and TZ-R take every N.</li>
-    <li id="fn8"><b>TZ-R</b> is a slow optimization-based method that uses TerracedZonal as an initialization (Riemannian L-BFGS with defect moves), shown only as a reference (hidden unless the checkbox above the cards is ticked) and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
+    <li id="fn8"><b>TZ-R</b> is a slow optimization-based method that uses TerracedZonal as an initialization (Riemannian L-BFGS with defect moves), shown only as a reference (hidden unless the checkbox below the cards is ticked) and not ranked against the constructions. Paper: &sect;5 and App.&nbsp;F.</li>
   </ol>
 </footer>
 

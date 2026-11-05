@@ -113,7 +113,7 @@ async function fetchRecord(file) {
 }
 
 // A construction that does not exist at a target N has no file there (its card shows N/A).
-// The TZ-R reference is loaded only while it is shown (checkbox above the cards).
+// The TZ-R reference is loaded only while it is shown (checkbox below the cards).
 const filesFor = tIdx => state.manifest.constructions.map(c =>
   (c.reference && !state.showRef) ? null : (c.files[String(state.manifest.targets[tIdx])].file || null));
 const isLoaded = tIdx => filesFor(tIdx).every(f => !f || state.loaded.has(f));
